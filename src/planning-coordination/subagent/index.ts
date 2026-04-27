@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { authAnthropic, build, model } from "../../common/main";
+import { auth, build, model } from "../../common/main";
 import { fn, type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
@@ -12,10 +12,10 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["write_file", writeFile],
     ["edit_file", editFile],
 ]);
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model();
 
-const SUBAGENT_SYSTEM = `You are a coding subagent at ${import.meta.dir}. Complete the given task, then summarize your findings.`;
+const SUBAGENT_SYSTEM = `You are a coding subagent at ${import.meta.dirname}. Complete the given task, then summarize your findings.`;
 const SUBAGENT_TOOLS: Anthropic.Tool[] = [
    Bash,
    ReadFile,
@@ -107,9 +107,10 @@ const TOOLS: Anthropic.Tool[] = [
     Task,
     ...SUBAGENT_TOOLS,
 ]
-async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages:Anthropic.MessageParam[] = [];
 
+const messages: Anthropic.MessageParam[] = [];
+
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
     messages.push({
         role: "user",
         content: prompt,

@@ -1,19 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { build, authAnthropic, model } from "../../common/main";
+import { build, auth, model } from "../../common/main";
 import { bash, Bash } from "../../common/tools/fs";
 
-const AUTH = authAnthropic();
+const AUTH = auth();
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use bash to solve tasks. Act, don't explain.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}. Use bash to solve tasks. Act, don't explain.`;
 const TOOLS: Anthropic.Tool[] = [Bash];
 
+const messages: Anthropic.MessageParam[] = [];
+
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [
-        {
-            role: "user",
-            content: prompt,
-        }
-    ];
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
 
     while (true) {
         const response = await AUTH.messages.create({

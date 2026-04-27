@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "test": "bun test",
     "s01": "bun run src/tools-execution/agent-loop/index.ts",
     "s02": "bun run src/tools-execution/tools/index.ts",
     "s03": "bun run src/planning-coordination/todo-write/index.ts",

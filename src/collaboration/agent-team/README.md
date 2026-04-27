@@ -851,6 +851,18 @@ class TeammateManager {
 
 `如果没有身份和邮箱，多个 Agent 是否只是一次性工具；有了名册和消息通道后，它们是否开始像真正团队`
 
+## 沙箱与整队联调（`.apps`）
+
+Lead 与所有队友的 **`bash` / `read_file` / `write_file` / `edit_file`** 都限制在：
+
+`src/collaboration/agent-team/.apps`
+
+- 路径为**相对 `.apps` 根**（例如 `src/snake.ts` 会写到 `.apps/src/snake.ts`），用 `../` 逃出会被拒绝。
+- **`bun` 的工作目录**在跑 `s09` 时仍是仓库根，但子进程 `bash` 的 **`cwd` 固定为 `.apps`**，避免误改仓库其它文件。
+- 目录名 `.apps` 已在仓库根 `.gitignore` 里忽略（任意层级的同名目录）。
+
+**如何试整队效果**：在项目根执行 `bun run s09`（或 `bun run src/collaboration/agent-team/index.ts`），用自然语言下达任务（例如「在沙箱里做一个最小贪吃蛇原型」）。联调时可在终端用 `/team` 看名册、`/inbox` 看 lead 信箱；需要 API Key（与项目其它示例相同）。自动化校验沙箱边界可运行：`bun test`（含 `sandbox-apps.test.ts`）。
+
 ## 结论
 
 `s09` 想让你建立的核心意识是：

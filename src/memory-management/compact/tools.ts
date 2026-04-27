@@ -4,7 +4,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { fn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import z from "zod";
-import { authAnthropic, model } from "../../common/main";
+import { auth, model } from "../../common/main";
 
 const THRESHOLD = 50000;
 const TRANSCRIPT_DIR = path.join(import.meta.dir, "transcripts");
@@ -110,7 +110,7 @@ function microCompact(
 /**
  * 第二层自动压缩：保存完整 transcript，调用模型生成摘要，再用摘要替换全部历史消息。
  */
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model()
 async function autoCompact(
     messages: Anthropic.MessageParam[],

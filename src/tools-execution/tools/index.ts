@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { build, authAnthropic, model } from "../../common/main";
+import { build, auth, model } from "../../common/main";
 import { bash, Bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
 import type { WrappedFn } from "../../common/util/fn";
 import type z from "zod";
@@ -11,9 +11,9 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["edit_file", editFile],
 ]);
 
-const AUTH = authAnthropic();
+const AUTH = auth();
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use bash to solve tasks. Act, don't explain.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}. Use bash to solve tasks. Act, don't explain.`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -21,9 +21,9 @@ const TOOLS: Anthropic.Tool[] = [
     EditFile,
 ];
 
-async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [];
+const messages: Anthropic.MessageParam[] = [];
 
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
     messages.push({
         role: "user",
         content: prompt,

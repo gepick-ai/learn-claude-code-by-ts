@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { authAnthropic, build, model } from "../../common/main";
+import { auth, build, model } from "../../common/main";
 import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
@@ -16,9 +16,9 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["list_task", listTask],
     ["get_task", getTask],
 ]);
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use task tools to plan and track work.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}. Use task tools to plan and track work.`;
 const tracer = createTracer("tasks-loop");
 const TOOLS: Anthropic.Tool[] = [
     Bash,
@@ -31,13 +31,13 @@ const TOOLS: Anthropic.Tool[] = [
     GetTask,
 ];
 
+const messages: Anthropic.MessageParam[] = [];
+
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [
-        {
-            role: "user",
-            content: prompt,
-        }
-    ]
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
 
     while(true) {
         const response = await AUTH.messages.create({

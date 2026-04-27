@@ -9,7 +9,7 @@
 // 2. 在需要时也能通过字符串自行区分不同子任务，
 // 3. API 保持简单，直接 `tracer.log(...)` 就能用。
 // 如果某个 tracer 不想输出，可以用 `createTracer("label", false)` 关闭。
-type TraceEvent = {
+export type TraceEvent = {
     label: string;
     event: string;
     detail?: string;
@@ -62,3 +62,13 @@ export function createTracer(label: string, enabled = true) {
 }
 
 export type Tracer = ReturnType<typeof createTracer>;
+
+/** 测试或断言前清空全局事件缓冲。 */
+export function clearTraceEvents(): void {
+    traceEvents.length = 0;
+}
+
+/** 返回当前已记录事件的快照（拷贝），便于在测试里断言顺序与内容。 */
+export function getTraceEvents(): TraceEvent[] {
+    return traceEvents.slice();
+}

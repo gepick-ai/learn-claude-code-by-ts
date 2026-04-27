@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { authAnthropic, build, model } from "../../common/main";
+import { auth, build, model } from "../../common/main";
 import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
@@ -16,9 +16,9 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["run_background", runBackground],
     ["check_background", checkBackground],
 ]);
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use run_background for long-running commands.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}. Use run_background for long-running commands.`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -28,15 +28,13 @@ const TOOLS: Anthropic.Tool[] = [
     CheckBackground,
 ]
 
-
+const messages: Anthropic.MessageParam[] = [];
 
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [
-        {
-            role: "user",
-            content: prompt,
-        }
-    ]
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
 
     while (true) {
         const notifs =  bgManager.drainNotifications();

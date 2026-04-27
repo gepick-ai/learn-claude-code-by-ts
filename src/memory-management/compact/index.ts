@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { authAnthropic, build, model } from "../../common/main";
+import { auth, build, model } from "../../common/main";
 import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
@@ -15,9 +15,9 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["edit_file", editFile],
     ["compact", compact],
 ]);
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use tools to solve tasks.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}. Use tools to solve tasks.`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -26,11 +26,13 @@ const TOOLS: Anthropic.Tool[] = [
     Compact,
 ]
 
+const messages: Anthropic.MessageParam[] = [];
+
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [{
+    messages.push({
         role: "user",
         content: prompt,
-    }];
+    });
 
     while(true) {
         //  Layer1: micro_compact before each LLM call

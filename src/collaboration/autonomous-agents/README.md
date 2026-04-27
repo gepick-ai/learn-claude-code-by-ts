@@ -168,7 +168,7 @@ async function idlePhase(name: string): Promise<boolean> {
   while (Date.now() - startedAt < timeoutMs) {
     await Bun.sleep(pollIntervalMs);
 
-    const inbox = await bus.readInbox(name);
+    const inbox = await messageBus.read(name);
     if (inbox.length > 0) {
       return true;
     }
@@ -532,7 +532,7 @@ async function idlePhase(name: string): Promise<boolean> {
   while (Date.now() - startedAt < timeoutMs) {
     await Bun.sleep(pollIntervalMs);
 
-    const inbox = await bus.readInbox(name);
+    const inbox = await messageBus.read(name);
     if (inbox.length > 0) {
       return true;
     }

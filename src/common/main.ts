@@ -6,7 +6,7 @@ import { loadDotEnv } from "./util/env";
 
 loadDotEnv();
 
-export const authAnthropic = () => new Anthropic({
+export const auth = () => new Anthropic({
     apiKey:  process.env.ANTHROPIC_API_KEY!,
     baseURL: process.env.ANTHROPIC_BASE_URL!,
 });
@@ -18,10 +18,15 @@ export const authAnthropic = () => new Anthropic({
 
 export const model = () => process.env.MODEL_ID ?? process.env.OPENAI_MODEL!;
 
-type BuildOptions = {
+export type BuildOptions = {
     label?: string;
     model?: string;
     system?: string;
+    /**
+     * 在渲染 User、调用 `loop` 之前执行。
+     * 若返回 `true`，表示输入已由插槽处理（如 `/team`），**跳过**本次 `loop`，主循环形态不变。
+     */
+    interceptInput?: (query: string) => boolean | Promise<boolean>;
 };
 
 const PROMPT_TEXT = "请输入prompt >>> ";
@@ -74,8 +79,16 @@ export const build = (
                 if (["q", "exit", ""].includes(query.trim().toLowerCase())) {
                     break;
                 }
+
+                if (options.interceptInput) {
+                    const skip = await options.interceptInput(query);
+                    if (skip) {
+                        continue;
+                    }
+                }
+
                 renderMessageBlock("User", query, USER_COLOR);
-    
+
                 await loop(query).then((history) => {
                     const responseContent = history.at(-1)?.content;
                     const textBlocks: string[] = [];

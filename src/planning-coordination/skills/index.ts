@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { authAnthropic, build, model } from "../../common/main";
+import { auth, build, model } from "../../common/main";
 import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
@@ -15,9 +15,9 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["edit_file", editFile],
     ["load_skill", loadSkill],
 ]);
-const AUTH = authAnthropic()
+const AUTH = auth()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${import.meta.dir}.
+const SYSTEM = `You are a coding agent at ${import.meta.dirname}.
 Use load_skill to access specialized knowledge before tackling unfamiliar topics.
 Skills available:
 ${skillLoader.getDescriptions()}`;
@@ -29,9 +29,9 @@ const TOOLS: Anthropic.Tool[] = [
     LoadSkill,
 ]
 
-async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages:Anthropic.MessageParam[] = [];
+const messages: Anthropic.MessageParam[] = [];
 
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
     messages.push({
         role: "user",
         content: prompt,
