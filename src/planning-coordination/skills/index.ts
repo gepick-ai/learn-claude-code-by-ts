@@ -4,55 +4,57 @@ import { authAnthropic, build, model } from "../../common/main";
 import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
-import { CreateTask, createTask, GetTask, getTask, ListTask, listTask, UpdateTask, updateTask } from "./tools";
+import { loadSkill, LoadSkill, skillLoader } from "./tools";
+
+const tracer = createTracer("skills");
 
 const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>([
     ["bash", bash],
     ["read_file", readFile],
     ["write_file", writeFile],
     ["edit_file", editFile],
-    ["create_task", createTask],
-    ["update_task", updateTask],
-    ["list_task", listTask],
-    ["get_task", getTask],
+    ["load_skill", loadSkill],
 ]);
 const AUTH = authAnthropic()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${process.cwd()}. Use task tools to plan and track work.`;
-const tracer = createTracer("tasks-loop");
+const SYSTEM = `You are a coding agent at ${import.meta.dir}.
+Use load_skill to access specialized knowledge before tackling unfamiliar topics.
+Skills available:
+${skillLoader.getDescriptions()}`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
     WriteFile,
-    EditFile,
-    CreateTask,
-    UpdateTask,
-    ListTask,
-    GetTask,
-];
+    EditFile,   
+    LoadSkill,
+]
 
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const messages: Anthropic.MessageParam[] = [
-        {
-            role: "user",
-            content: prompt,
-        }
-    ]
+    const messages:Anthropic.MessageParam[] = [];
 
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
+
+    let round = 0;
     while(true) {
+        round += 1;
+        tracer.log("round", String(round));
         const response = await AUTH.messages.create({
             model: MODEL,
             system: SYSTEM,
             messages,
             tools: TOOLS,
             max_tokens: 8000,
-        });
-        tracer.log("stop_reason", String(response.stop_reason));
+        })
 
         messages.push({
             role: "assistant",
             content: response.content,
-        });
+        })
+
+        tracer.log("stop_reason", response.stop_reason ?? "none");
 
         if(response.stop_reason !== "tool_use") {
             break;
@@ -62,20 +64,20 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
         for(const block of response.content) {
             if(block.type === "tool_use") {
                 let output = '';
-                tracer.log("tool_use", block.name);
                 const handler = TOOL_HANDLERS.get(block.name);
+
+                tracer.log("tool_use", block.name);
+
                 if(!handler) {
                     output = `Unknown tool: ${block.name}`;
-                    tracer.log("tool_missing", block.name);
                 }else{
-                    try{
-                        output = await handler(block.input);
-                        tracer.log("tool_result", `${block.name}: ${String(output).slice(0, 200)}`);
-                    }catch(err){
-                        output = `Error: ${err}`;
-                        tracer.error(`tool_error:${block.name}`, err);
+                    try {
+                        output = await bash(block.input);
+                    } catch (err) {
+                        output = `Error: ${err instanceof Error ? err.message : "Unknown error"}`;
                     }
                 }
+
                 results.push({
                     type: "tool_result",
                     tool_use_id: block.id,
@@ -93,8 +95,9 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
     return messages;
 }
 
+
 build(loop).run({
-    label: "规划与协调 >> Tasks",
+    label: "规划与协调 >> Skills",
     model: MODEL,
     system: SYSTEM,
 });

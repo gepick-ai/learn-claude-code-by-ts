@@ -13,7 +13,7 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
 
 const AUTH = authAnthropic();
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${process.cwd()}. Use bash to solve tasks. Act, don't explain.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use bash to solve tasks. Act, don't explain.`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -51,15 +51,16 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
 
         for (const block of response.content) {
             if (block.type === "tool_use") {
-                let output = '';
+                let output:string;
                 const handler = TOOL_HANDLERS.get(block.name);
+
                 if (!handler) {
                     output = `Unknown tool: ${block.name}`;
                 } else {
                     try {
                         output = await handler(block.input);
-                    } catch (error) {
-                        output = `Error: ${error}`;
+                    } catch (err) {
+                        output = `Error: ${err instanceof Error ? err.message : "Unknown error"}`;
                     }
 
                 }

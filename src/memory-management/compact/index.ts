@@ -17,7 +17,7 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
 ]);
 const AUTH = authAnthropic()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${process.cwd()}. Use tools to solve tasks.`;
+const SYSTEM = `You are a coding agent at ${import.meta.dir}. Use tools to solve tasks.`;
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -74,13 +74,13 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
                     }else{
                        try{
                         output = await handler(block.input);
-                       }catch(error){
-                        output = `Error: ${error}`;
-                       }
+                       }catch(err){
+                        output = `Error: ${err instanceof Error ? err.message : "Unknown error"}`;
+                    }
                     }
                 }
 
-                tracer.log("tool_use", `${block.name}: ${String(output).slice(0, 200)}`);
+                tracer.log("tool_use", `${block.name}`);
                
                 results.push({
                     type: "tool_result",

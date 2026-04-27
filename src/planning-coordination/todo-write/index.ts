@@ -16,7 +16,7 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
 
 const AUTH = authAnthropic()
 const MODEL = model();
-const SYSTEM = `You are a coding agent at ${process.cwd()}.
+const SYSTEM = `You are a coding agent at ${import.meta.dir}.
 Use the todo tool to plan multi-step tasks. Mark in_progress before starting, completed when done.
 Prefer tools over prose.`;
 const TOOLS: Anthropic.Tool[] = [
@@ -60,48 +60,25 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
         }
 
         let used_todo = false;
+
         const results: Array<Anthropic.TextBlockParam | Anthropic.ToolResultBlockParam> = [];
-
-        // `response.content` 是数组，重点不是“有一段文字”，而是“同一轮里可能有多个 tool_use”。
-        // 所以这里必须遍历整组 block，而不能假设只会有一个工具调用。
-        //
-        // 一个更贴近当前场景的真实 JSON 例子：
-        // [
-        //   {
-        //     "type": "tool_use",
-        //     "id": "toolu_123",
-        //     "name": "bash",
-        //     "input": { "command": "pwd" }
-        //   },
-        //   {
-        //     "type": "tool_use",
-        //     "id": "toolu_456",
-        //     "name": "bash",
-        //     "input": { "command": "ls" }
-        //   }
-        // ]
-        //
-        // 我的观察：
-        // 1. 一次模型回复里，可能连续给出多个 `tool_use`。
-        // 2. 所以这里要对每个 block 分别执行工具。
-        // 3. 每个工具调用都要生成一个对应的 `tool_result`。
-        // 4. 因此后面要把多个结果 `push` 到 `results` 里，再整批回填给模型。
         for (const block of response.content) {
-
             if (block.type === "tool_use") {
                 let output = '';
-                tracer.log("tool_use", block.name);
                 const handler = TOOL_HANDLERS.get(block.name);
+
+                tracer.log("tool_use", block.name);
+
                 if (!handler) {
                     output = `Unknown tool: ${block.name}`;
                 } else {
                     try {
                         output = await handler(block.input);
-                    } catch (error) {
-                        output = `Error: ${error}`;
+                    } catch (err) {
+                        output = `Error: ${err instanceof Error ? err.message : "Unknown error"}`;
                     }
-
                 }
+
                 results.push({
                     type: "tool_result",
                     tool_use_id: block.id,
@@ -119,7 +96,9 @@ async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
             tracer.log("todo_used");
         } else {
             rounds_since_todo += 1;
+
             tracer.log("rounds_since_todo", String(rounds_since_todo));
+
             if (rounds_since_todo >= 3) {
                 tracer.log("todo_reminder");
                 results.unshift({

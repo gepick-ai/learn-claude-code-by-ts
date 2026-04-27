@@ -3,7 +3,6 @@ import path from "node:path";
 import { readdir } from "node:fs/promises";
 import { fn } from "../../common/util/fn";
 import z from "zod";
-import { create } from "node:domain";
 import { createTracer } from "../../common/util/trace";
 
 const trace = createTracer("Skills");

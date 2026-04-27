@@ -4,18 +4,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "s01": "bun run src/01_tools-excution/s01_agent-loop/index.ts",
-    "s02": "bun run src/01_tools-execution/s02-tools/index.ts",
-    "s03": "bun run src/02_planning-coordination/s03_todo-write/index.ts",
-    "s04": "bun run src/02_planning-coordination/s04_subagent/index.ts",
-    "s05": "bun run src/02_planning-coordination/s05_skills/index.ts",
-    "s06": "bun run src/03_memory-management/s06_compact/index.ts",
-    "s07": "bun run src/02_planning-coordination/s07_tasks/index.ts",
-    "s08": "bun run src/04_concurrency/s08_background-tasks/index.ts",
-    "s09": "bun run src/05_collaboration/s09_agent-team/index.ts",
-    "s10": "bun run src/05_collaboration/s10_team-protocols/index.ts",
-    "s11": "bun run src/05_collaboration/s11_autonomous-agents/index.ts",
-    "s12": "bun run src/05_collaboration/s12_worktree-isolation/index.ts"
+    "s01": "bun run src/tools-execution/agent-loop/index.ts",
+    "s02": "bun run src/tools-execution/tools/index.ts",
+    "s03": "bun run src/planning-coordination/todo-write/index.ts",
+    "s04": "bun run src/planning-coordination/subagent/index.ts",
+    "s05": "bun run src/planning-coordination/skills/index.ts",
+    "s06": "bun run src/memory-management/compact/index.ts",
+    "s07": "bun run src/planning-coordination/tasks/index.ts",
+    "s08": "bun run src/concurrency/background-tasks/index.ts",
+    "s09": "bun run src/collaboration/agent-team/index.ts",
+    "s10": "bun run src/collaboration/team-protocols/index.ts",
+    "s11": "bun run src/collaboration/autonomous-agents/index.ts",
+    "s12": "bun run src/collaboration/worktree-isolation/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

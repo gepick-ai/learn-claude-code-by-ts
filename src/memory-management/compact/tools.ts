@@ -6,8 +6,6 @@ import { createTracer } from "../../common/util/trace";
 import z from "zod";
 import { authAnthropic, model } from "../../common/main";
 
-
-
 const THRESHOLD = 50000;
 const TRANSCRIPT_DIR = path.join(import.meta.dir, "transcripts");
 const KEEP_RECENT = 3;
