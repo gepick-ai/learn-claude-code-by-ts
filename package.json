@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "test": "bun test",
+    "web": "bun run app/index.ts",
+    "web:ai": "bun run ai-app/index.ts",
     "s01": "bun run src/tools-execution/agent-loop/index.ts",
     "s02": "bun run src/tools-execution/tools/index.ts",
     "s03": "bun run src/planning-coordination/todo-write/index.ts",
@@ -26,9 +28,16 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@ai-sdk/anthropic": "^2.0.0",
+    "@types/pg": "^8.20.0",
+    "ai": "^5.0.0",
     "commander": "^14.0.3",
     "dotenv": "^17.3.1",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.14",
     "openai": "^6.33.0",
+    "pg": "^8.20.0",
     "zod": "^4.3.6"
   }
 }

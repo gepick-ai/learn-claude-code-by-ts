@@ -37,3 +37,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .tasks
 .cursor
 .team
+
+# local SQLite session DB (opencode-app)
+apps/opencode-app/store/data/
