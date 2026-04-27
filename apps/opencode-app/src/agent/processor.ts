@@ -1,5 +1,5 @@
 import { LLM, type StreamInput } from "./llm"
-import type { AssistantMessage, ReasoningPart, ToolPart } from "../server/session/model"
+import type { AssistantMessage, ReasoningPart, TextPart, ToolPart } from "../server/session/model"
 import { Identifier } from "../util/id"
 import { partModel } from "../server/session/dao"
 
@@ -26,6 +26,7 @@ export namespace Processor {
         while (true) {
           try {
             const reasoningPartMap = new Map<string, ReasoningPart>()
+            const textPartMap = new Map<string, TextPart>()
 
             const result = LLM.stream(streamInput)
 
@@ -126,13 +127,39 @@ export namespace Processor {
                 // #endregion tool calling
 
                 // #region saying
-                case "text-start":
-                  break
-                case "text-delta": {
+                case "text-start":{
+                  const textPart:TextPart  = {
+                    id: Identifier.ascending("part"),
+                    sessionId: input.assistantMessage.sessionId,
+                    messageId: input.assistantMessage.id,
+                    type: "text",
+                    text: "",
+                  }
+
+                  await partModel.updatePart(textPart)
+                  textPartMap.set(evt.id, textPart)
+
                   break
                 }
-                case "text-end":
+                case "text-delta": {
+                  const textPart = textPartMap.get(evt.id)
+
+                  if(textPart) {
+                    textPart.text += evt.text
+                  }
+
                   break
+                }
+                case "text-end":{
+                  const textPart = textPartMap.get(evt.id)
+                  if(textPart) {
+                    textPart.text = textPart.text.trimEnd()
+                    await partModel.updatePart(textPart)
+                    textPartMap.delete(evt.id)
+                  }
+
+                  break
+                }
                 // #endregion saying
 
                 case "finish-step": {// 结束agent的一步
