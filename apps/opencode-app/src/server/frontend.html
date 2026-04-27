@@ -123,7 +123,7 @@
         const sendBtn = document.getElementById('sendBtn');
         const sseStatusEl = document.getElementById('sseStatus');
 
-        const es = new EventSource('/event');
+        const es = new EventSource('/sse/event');
         es.onopen = () => {
             sseStatusEl.textContent = 'SSE: 已连接';
         };
@@ -140,7 +140,7 @@
             const t = o.type;
             const p = o.properties || {};
             if (t === 'server.heartbeat' || t === 'server.connected') return;
-            if (p.sessionID != null && sessionId != null && p.sessionID !== sessionId) return;
+            if (p.sessionId != null && sessionId != null && p.sessionId !== sessionId) return;
 
             if (t === 'message.delta' && assistantStreamEl) {
                 assistantStreamEl.textContent += p.text || '';
@@ -214,14 +214,14 @@
                 const res = await fetch(`/session/${sessionId}/message`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({
+                        parts: [{ type: 'text', text: message }]
+                    })
                 });
                 const data = await res.json();
                 hideLoading();
                 if (data.success) {
-                    if (assistantStreamEl) {
-                        assistantStreamEl.textContent = data.response;
-                    }
+                    // SSE already streamed assistant content.
                 } else {
                     if (assistantStreamEl) {
                         assistantStreamEl.textContent = '错误: ' + (data.error || '');

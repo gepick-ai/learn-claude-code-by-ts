@@ -1,11 +1,11 @@
-import { tool } from "ai";
-import { z } from "zod";
+import { tool } from "ai"
+import { z } from "zod"
 import {
   bash as runBash,
   editFile as runEditFile,
   readFile as runReadFile,
   writeFile as runWriteFile,
-} from "../../../src/common/tools/fs";
+} from "../../../../src/common/tools/fs"
 
 export const agentTools = {
   bash: tool({
@@ -13,6 +13,7 @@ export const agentTools = {
     inputSchema: z.object({
       command: z.string().describe("The shell command to execute."),
     }),
+    execute: async (input) => await runBash(input),
   }),
   read_file: tool({
     description: "Read file contents.",
@@ -24,6 +25,7 @@ export const agentTools = {
         .optional()
         .describe("Optional maximum number of lines to return."),
     }),
+    execute: async (input) => await runReadFile(input),
   }),
   write_file: tool({
     description: "Write content to file.",
@@ -31,6 +33,7 @@ export const agentTools = {
       path: z.string().describe("The path of the file to write."),
       content: z.string().describe("The full content to write to the file."),
     }),
+    execute: async (input) => await runWriteFile(input),
   }),
   edit_file: tool({
     description: "Replace exact text in file.",
@@ -39,24 +42,6 @@ export const agentTools = {
       old_text: z.string().describe("The exact text to replace."),
       new_text: z.string().describe("The replacement text."),
     }),
+    execute: async (input) => await runEditFile(input),
   }),
-};
-
-export const toolHandlers = {
-  bash: async (input: { command: string }) => {
-    return await runBash(input);
-  },
-  read_file: async (input: { path: string; limit?: number }) => {
-    return await runReadFile(input);
-  },
-  write_file: async (input: { path: string; content: string }) => {
-    return await runWriteFile(input);
-  },
-  edit_file: async (input: {
-    path: string;
-    old_text: string;
-    new_text: string;
-  }) => {
-    return await runEditFile(input);
-  },
-};
+}

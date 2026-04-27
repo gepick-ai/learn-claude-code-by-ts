@@ -1,0 +1,224 @@
+import { loop } from "../../agent/prompt"
+import z from "zod"
+import { Message, Session, SessionMessage, TextPart, ToolPart } from "./model"
+import { Identifier } from "../../util/id"
+import { messageModel, partModel, sessionModel } from "./dao"
+import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai"
+
+export const PartInput = z.discriminatedUnion("type", [
+  TextPart.omit({
+    messageId: true,
+    sessionId: true,
+  })
+    .partial({
+      id: true,
+    })
+    .meta({
+      ref: "TextPartInput",
+    }),
+  ToolPart.omit({
+    messageId: true,
+    sessionId: true,
+  })
+    .partial({
+      id: true,
+    })
+    .meta({
+      ref: "ToolPartInput",
+    }),
+])
+
+export const PromptInput = z.object({
+  sessionId: z.string(),
+  parts: z.array(PartInput),
+})
+
+export const GetMessagesInput = z.object({
+  sessionId: z.string(),
+  limit: z.number().optional(),
+})
+
+export const CreateAssistantMessageInput = z.object({
+  sessionId: z.string(),
+})
+export type CreateAssistantMessageInput = z.infer<typeof CreateAssistantMessageInput>
+
+class SessionService {
+  async createSession() {
+    const session: Session = {
+      id: Identifier.descending("session"),
+      title: "Untitled Session",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+
+    await sessionModel.createSession(session)
+
+    return session
+  }
+
+  async getSession(sessionId: string): Promise<Session> {
+    const row = await sessionModel.getSession(sessionId);
+
+    return {
+      id: row.id,
+      title: row.title,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }
+  }
+}
+
+export const sessionService = new SessionService()
+
+class MessageService {
+
+  async prompt(input: z.input<typeof PromptInput>) {
+    const parsed = PromptInput.parse(input)
+    await this.createUserSessionMessage(parsed)
+    return loop({ sessionId: parsed.sessionId })
+  }
+
+  async getMessages(input: z.infer<typeof GetMessagesInput>):Promise<SessionMessage[]> {
+    const result = [] as SessionMessage[]
+
+    for await (const msg of messageModel.getMessages(input.sessionId)) {
+      if (input.limit && result.length >= input.limit) break
+      result.push(msg)
+    }
+    result.reverse();
+    return result
+  }
+
+  /**
+   * 将持久化的 `SessionMessage` 转成 AI SDK 的 `ModelMessage[]`。
+   * 思路对齐 opencode `MessageV2.toModelMessages`：先组 `UIMessage`（含 tool-* parts），再 `convertToModelMessages`。
+   */
+  toModelMessages(messages: SessionMessage[]): ModelMessage[] {
+    const uiMessages: UIMessage[] = []
+    const toolNames = new Set<string>()
+
+    const toModelOutput = (output: unknown) => {
+      switch (typeof output) {
+        case "string":
+          return { type: "text" as const, value: output }
+        default:
+          return { type: "json", value: output }
+      }
+    }
+
+    for (const sessionMessage of messages) {
+      if (sessionMessage.parts.length === 0) continue
+
+      const { message, parts } = sessionMessage
+
+      if (message.role === "user") {
+        const userMessage: UIMessage = {
+          id: message.id,
+          role: "user",
+          parts: []
+        }
+
+        for (const p of parts) {
+          if (p.type === "text" && !p.ignored) {
+            userMessage.parts.push({ type: "text", text: p.text })
+          }
+        }
+
+        if(userMessage.parts.length > 0) {
+          uiMessages.push(userMessage)
+        }
+      }
+
+      if (message.role === "assistant") {
+        const assistantMessage: UIMessage = { id: message.id, role: "assistant", parts: [] }
+
+        for (const p of parts) {
+          if (p.type === "text") {
+            assistantMessage.parts.push({ type: "text", text: p.text })
+          }
+          if (p.type === "tool") {
+            toolNames.add(p.tool)
+            const toolType = ("tool-" + p.tool) as `tool-${string}`
+            if (p.error) {
+              assistantMessage.parts.push({
+                type: toolType,
+                state: "output-error",
+                toolCallId: p.callId,
+                input: p.input ?? {},
+                errorText: p.error,
+              } as UIMessage["parts"][number])
+              continue
+            }
+            if (p.output != null) {
+              assistantMessage.parts.push({
+                type: toolType,
+                state: "output-available",
+                toolCallId: p.callId,
+                input: p.input ?? {},
+                output: p.output,
+              } as UIMessage["parts"][number])
+              continue
+            }
+            assistantMessage.parts.push({
+              type: toolType,
+              state: "output-error",
+              toolCallId: p.callId,
+              input: p.input ?? {},
+              errorText: "[Tool execution was interrupted]",
+            } as UIMessage["parts"][number])
+          }
+        }
+
+        if (assistantMessage.parts.length > 0) {
+          uiMessages.push(assistantMessage)
+        }
+      }
+    }
+
+    const tools = Object.fromEntries([...toolNames].map((toolName) => [toolName, { toModelOutput }]))
+
+    return convertToModelMessages(uiMessages, {
+      //@ts-expect-error (convertToModelMessages expects a ToolSet but only actually needs tools[name]?.toModelOutput)
+      tools
+    })
+  }
+
+   async createUserSessionMessage(input: z.infer<typeof PromptInput>) {
+    const message: Message = {
+      id: Identifier.ascending("message"),
+      sessionId: input.sessionId,
+      role: "user" as const,
+      createdAt: Date.now(),
+    }
+    const parts = input.parts.map((part) => ({
+      ...part,
+      id: part.id ?? Identifier.ascending("part"),
+      sessionId: input.sessionId,
+      messageId: message.id
+    }))
+
+    await messageModel.updateMessage(message)
+    for (const part of parts) {
+      await partModel.updatePart(part)
+    }
+
+    return { message, parts }
+  }
+
+  async createAssistantMessage(input: CreateAssistantMessageInput) {
+    const message: Message = {
+      id: Identifier.ascending("message"),
+      sessionId:input.sessionId,
+      role: 'assistant' as const,
+      createdAt: Date.now(),
+    }
+
+    await messageModel.updateMessage(message);
+
+    return message;
+  }
+
+}
+
+export const messageService = new MessageService()

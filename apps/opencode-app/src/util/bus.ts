@@ -5,7 +5,7 @@ export type BusPayload = {
 
 const subs = new Set<(e: BusPayload) => void | Promise<void>>()
 
-export const MiniBus = {
+export const Bus = {
   publish(payload: BusPayload) {
     for (const cb of subs) {
       void Promise.resolve(cb(payload)).catch(() => {})
