@@ -1,16 +1,22 @@
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import readline from "node:readline";
 import { createTracer } from "./util/trace";
 import { loadDotEnv } from "./util/env";
 
 loadDotEnv();
 
-export const auth = () => new Anthropic({
+export const authAnthropic = () => new Anthropic({
     apiKey:  process.env.ANTHROPIC_API_KEY!,
     baseURL: process.env.ANTHROPIC_BASE_URL!,
 });
 
-export const model = () => process.env.MODEL_ID!;
+export const authOpenAI = () => new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY!,
+    baseURL: process.env.OPENAI_BASE_URL!,
+});
+
+export const model = () => process.env.MODEL_ID ?? process.env.OPENAI_MODEL!;
 
 type BuildOptions = {
     label?: string;
@@ -33,10 +39,9 @@ function renderMessageBlock(label: string, text: string, color: string) {
 }
 
 export const build = (
-    loop: (messages: Anthropic.MessageParam[]) => Promise<void>,
-    options: BuildOptions = {},
+    loop: (prompt:string) => Promise<Anthropic.MessageParam[]>,
 ) => ({
-    run: async function main() {
+    run: async (options: BuildOptions = {}) => {
         const tracer = createTracer(options.label ?? "root");
 
         if (options.model) {
@@ -58,7 +63,6 @@ export const build = (
             output: process.stdout,
             terminal: true,
         });
-        const history: Anthropic.MessageParam[] = [];
     
         try {
             while (true) {
@@ -70,30 +74,24 @@ export const build = (
                 if (["q", "exit", ""].includes(query.trim().toLowerCase())) {
                     break;
                 }
-    
-                history.push({
-                    role: "user",
-                    content: query,
-                });
-
                 renderMessageBlock("User", query, USER_COLOR);
     
-                await loop(history);
-    
-                const responseContent = history.at(-1)?.content;
-                const textBlocks: string[] = [];
-    
-                if (Array.isArray(responseContent)) {
-                    for (const block of responseContent) {
-                        if (block.type === "text") {
-                            textBlocks.push(block.text);
+                await loop(query).then((history) => {
+                    const responseContent = history.at(-1)?.content;
+                    const textBlocks: string[] = [];
+        
+                    if (Array.isArray(responseContent)) {
+                        for (const block of responseContent) {
+                            if (block.type === "text") {
+                                textBlocks.push(block.text);
+                            }
                         }
                     }
-                }
-
-                if (textBlocks.length > 0) {
-                    renderMessageBlock("Assistant", textBlocks.join("\n\n"), ASSISTANT_COLOR);
-                }
+    
+                    if (textBlocks.length > 0) {
+                        renderMessageBlock("Assistant", textBlocks.join("\n\n"), ASSISTANT_COLOR);
+                    }
+                })
             }
         } catch (error) {
             // @ts-ignore

@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { type WrappedFn } from "../../common/util/fn";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
-import { auth, build, model } from "../../common/main";
+import { authAnthropic, build, model } from "../../common/main";
 import { Todo, todo } from "./tools";
 import { createTracer } from "../../common/util/trace";
 
@@ -14,7 +14,7 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["todo", todo],
 ]);
 
-const AUTH = auth()
+const AUTH = authAnthropic()
 const MODEL = model();
 const SYSTEM = `You are a coding agent at ${process.cwd()}.
 Use the todo tool to plan multi-step tasks. Mark in_progress before starting, completed when done.
@@ -27,7 +27,15 @@ const TOOLS: Anthropic.Tool[] = [
     Todo,
 ];
 
-async function loop(messages: Anthropic.MessageParam[]) {
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
+    const state = loop as typeof loop & { messages?: Anthropic.MessageParam[] };
+    const messages = state.messages ?? (state.messages = []);
+
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
+
     const tracer = createTracer("parent");
     tracer.log("start");
 
@@ -127,12 +135,14 @@ async function loop(messages: Anthropic.MessageParam[]) {
             content: results,
         });
     }
+
+    return messages;
 }
 
-build(loop, {
+build(loop).run({
     label: "规划与协调 >> TodoWrite",
     model: MODEL,
     system: SYSTEM,
-}).run();
+});
 
 

@@ -1,10 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { auth, build, model } from "../../common/main";
-import { fn, type WrappedFn } from "../../common/util/fn";
+import { authAnthropic, build, model } from "../../common/main";
+import { type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { Bash, bash, EditFile, editFile, ReadFile, readFile, WriteFile, writeFile } from "../../common/tools/fs";
 import { loadSkill, LoadSkill, skillLoader } from "./tools";
+
+const tracer = createTracer("skills");
 
 const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>([
     ["bash", bash],
@@ -13,14 +15,12 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["edit_file", editFile],
     ["load_skill", loadSkill],
 ]);
-const AUTH = auth()
+const AUTH = authAnthropic()
 const MODEL = model();
 const SYSTEM = `You are a coding agent at ${process.cwd()}.
 Use load_skill to access specialized knowledge before tackling unfamiliar topics.
 Skills available:
 ${skillLoader.getDescriptions()}`;
-const tracer = createTracer("skills");
-
 const TOOLS: Anthropic.Tool[] = [
     Bash,
     ReadFile,
@@ -29,7 +29,15 @@ const TOOLS: Anthropic.Tool[] = [
     LoadSkill,
 ]
 
-async function loop(messages: Anthropic.MessageParam[]) {
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
+    const state = loop as typeof loop & { messages?: Anthropic.MessageParam[] };
+    const messages = state.messages ?? (state.messages = []);
+
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
+
     let round = 0;
     while(true) {
         round += 1;
@@ -77,11 +85,13 @@ async function loop(messages: Anthropic.MessageParam[]) {
             content: results,
         })
     }
+
+    return messages;
 }
 
 
-build(loop, {
+build(loop).run({
     label: "规划与协调 >> Skills",
     model: MODEL,
     system: SYSTEM,
-}).run();
+});

@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { auth, build, model } from "../../common/main";
+import { authAnthropic, build, model } from "../../common/main";
 import { fn, type WrappedFn } from "../../common/util/fn";
 import { createTracer } from "../../common/util/trace";
 import { bash, editFile, readFile, writeFile } from "../../common/tools/fs";
@@ -12,7 +12,7 @@ const TOOL_HANDLERS = new Map<string, WrappedFn<z.ZodTypeAny, Promise<string>>>(
     ["write_file", writeFile],
     ["edit_file", editFile],
 ]);
-const AUTH = auth()
+const AUTH = authAnthropic()
 const MODEL = model();
 
 const SUBAGENT_SYSTEM = `You are a coding subagent at ${process.cwd()}. Complete the given task, then summarize your findings.`;
@@ -149,7 +149,15 @@ const TOOLS: Anthropic.Tool[] = [
     Task,
     ...SUBAGENT_TOOLS,
 ]
-async function loop(messages: Anthropic.MessageParam[]) {
+async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
+    const state = loop as typeof loop & { messages?: Anthropic.MessageParam[] };
+    const messages = state.messages ?? (state.messages = []);
+
+    messages.push({
+        role: "user",
+        content: prompt,
+    });
+
     const trace = createTracer("parent");
     trace.log("start");
 
@@ -214,10 +222,11 @@ async function loop(messages: Anthropic.MessageParam[]) {
         })
     }
 
+    return messages;
 }
 
-build(loop, {
+build(loop).run({
     label: "规划与协调 >> subagent",
     model: MODEL,
     system: SYSTEM,
-}).run();
+});
