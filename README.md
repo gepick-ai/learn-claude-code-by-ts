@@ -61,7 +61,7 @@
 - 理解 worktree 在多 Agent 开发中的作用
 
 - [x] `s09 Agent 团队`
-- [ ] `s10 团队协议`
+- [x] `s10 团队协议`
 - [ ] `s11 自主 Agent`
 - [ ] `s12 Worktree + 任务隔离`
 
