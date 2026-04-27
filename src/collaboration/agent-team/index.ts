@@ -11,6 +11,8 @@ const TOOL_HANDLERS = new Map<string, (input: unknown) => Promise<string>>([
     ["read_file", readFile],
     ["write_file", writeFile],
     ["edit_file", editFile],
+    ["add_member", MemberManager.addMember],
+    ["list_members", MemberManager.listMembers],
     ["send_message", (input) => MessageBus.sendMessage("lead", input)],
     ["read_message", (input) => MessageBus.readMessage("lead", input)],
     ["broadcast", (input) => MessageBus.broadcast("lead", input)],
