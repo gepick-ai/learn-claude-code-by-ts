@@ -30,8 +30,7 @@ const TOOLS: Anthropic.Tool[] = [
 ]
 
 async function loop(prompt: string): Promise<Anthropic.MessageParam[]> {
-    const state = loop as typeof loop & { messages?: Anthropic.MessageParam[] };
-    const messages = state.messages ?? (state.messages = []);
+    const messages:Anthropic.MessageParam[] = [];
 
     messages.push({
         role: "user",

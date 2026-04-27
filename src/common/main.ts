@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import readline from "node:readline";
 import { createTracer } from "./util/trace";
 import { loadDotEnv } from "./util/env";
@@ -11,10 +11,10 @@ export const authAnthropic = () => new Anthropic({
     baseURL: process.env.ANTHROPIC_BASE_URL!,
 });
 
-export const authOpenAI = () => new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY!,
-    baseURL: process.env.OPENAI_BASE_URL!,
-});
+// export const authOpenAI = () => new OpenAI({
+//     apiKey: process.env.OPENAI_API_KEY!,
+//     baseURL: process.env.OPENAI_BASE_URL!,
+// });
 
 export const model = () => process.env.MODEL_ID ?? process.env.OPENAI_MODEL!;
 
