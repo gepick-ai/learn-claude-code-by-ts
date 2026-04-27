@@ -1,5 +1,5 @@
 import { LLM, type StreamInput } from "./llm"
-import type { AssistantMessage, ReasoningPart } from "../server/session/model"
+import type { AssistantMessage, ReasoningPart, ToolPart } from "../server/session/model"
 import { Identifier } from "../util/id"
 import { partModel } from "../server/session/dao"
 
@@ -10,6 +10,7 @@ export namespace Processor {
     sessionId: string
     assistantMessage: AssistantMessage
   }) {
+    const toolPartMap = new Map<string, ToolPart>()
     let step = 0
     let blocked = false
 
@@ -24,13 +25,12 @@ export namespace Processor {
         let attempt = 0
         while (true) {
           try {
-            const reasoningMap = new Map<string, ReasoningPart>()
-            const toolInputMap = new Map<string, string>()
+            const reasoningPartMap = new Map<string, ReasoningPart>()
 
             const result = LLM.stream(streamInput)
 
-            for await (const part of result.fullStream) {
-              switch (part.type) {
+            for await (const evt of result.fullStream) {
+              switch (evt.type) {
 
                 case "start": // 流开始
                   break
@@ -41,7 +41,7 @@ export namespace Processor {
 
                 // #region thinking
                 case "reasoning-start": {
-                  if (reasoningMap.has(part.id)) continue;
+                  if (reasoningPartMap.has(evt.id)) continue;
                   const reasoningPart: ReasoningPart = {
                     id: Identifier.ascending("part"),
                     sessionId: input.assistantMessage.sessionId,
@@ -49,23 +49,25 @@ export namespace Processor {
                     type: "reasoning",
                     text: "",
                   }
-                  reasoningMap.set(part.id, reasoningPart)
+
                   await partModel.updatePart(reasoningPart)
+                  reasoningPartMap.set(evt.id, reasoningPart)
+
                   break
                 }
                 case "reasoning-delta": {
-                  const reasoningPart = reasoningMap.get(part.id)
+                  const reasoningPart = reasoningPartMap.get(evt.id)
                   if (reasoningPart) {
-                    reasoningPart.text += part.text
+                    reasoningPart.text += evt.text
                   }
                   break
                 }
                 case "reasoning-end": {
-                  const reasoningPart = reasoningMap.get(part.id)
+                  const reasoningPart = reasoningPartMap.get(evt.id)
                   if (reasoningPart) {
                     reasoningPart.text = reasoningPart.text.trimEnd()
                     await partModel.updatePart(reasoningPart)
-                    reasoningMap.delete(part.id)
+                    reasoningPartMap.delete(evt.id)
                   }
                   break
                 }
@@ -73,28 +75,52 @@ export namespace Processor {
 
                 // #region tool calling
                 case "tool-input-start": {
-                  toolInputMap.set(part.id, "")
+                  const toolPart:ToolPart = {
+                    id: Identifier.ascending("part"),
+                    sessionId: input.assistantMessage.sessionId,
+                    messageId: input.assistantMessage.id,
+                    type: "tool",
+                    tool: evt.toolName,
+                    callId: evt.id,
+                  }
+                  
+                  await partModel.updatePart(toolPart)
+                  toolPartMap.set(evt.id, toolPart)
+
                   break
                 }
-                case "tool-input-delta": {
-                  if (!toolInputMap.has(part.id)) break
-                  toolInputMap.set(part.id, `${toolInputMap.get(part.id) ?? ""}${part.delta}`)
-                  break
-                }
-                case "tool-input-end": {
-                  if (!toolInputMap.has(part.id)) break
-                  toolInputMap.set(part.id, (toolInputMap.get(part.id) ?? "").trimEnd())
-                  break
-                }
+                case "tool-input-delta": break
+                case "tool-input-end": break
                 case "tool-call": {
+                  let toolPart = toolPartMap.get(evt.toolCallId);
+                  if(toolPart) {
+                    toolPart = {
+                      ...toolPart,
+                      tool: evt.toolName,
+                    }
+                    await partModel.updatePart(toolPart)
+                    toolPartMap.set(evt.toolCallId, toolPart)
+                  }
+
                   break
                 }
                 case "tool-result": {
-                  toolInputMap.delete(part.toolCallId)
+                  let toolPart = toolPartMap.get(evt.toolCallId);
+                  if(toolPart) {
+                    toolPart = {
+                      ...toolPart,
+                    }
+                    await partModel.updatePart(toolPart)
+                    toolPartMap.delete(evt.toolCallId)
+                  }
                   break
                 }
                 case "tool-error": {
-                  toolInputMap.delete(part.toolCallId)
+                  let toolPart = toolPartMap.get(evt.toolCallId);
+                  if(toolPart) {
+                    await partModel.updatePart(toolPart)
+                    toolPartMap.delete(evt.toolCallId)
+                  }
                   break
                 }
                 // #endregion tool calling
@@ -117,7 +143,7 @@ export namespace Processor {
                 }
 
                 case "error": {
-                  throw part.error
+                  throw evt.error
                 }
 
                 default:
