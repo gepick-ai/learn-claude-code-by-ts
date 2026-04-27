@@ -5,8 +5,9 @@
   "private": true,
   "scripts": {
     "test": "bun test",
-    "web": "bun run app/index.ts",
-    "web:ai": "bun run ai-app/index.ts",
+    "web": "bun run apps/app/index.ts",
+    "web:ai": "bun run apps/ai-app/index.ts",
+    "web:opencode": "bun run apps/opencode-app/index.ts",
     "s01": "bun run src/tools-execution/agent-loop/index.ts",
     "s02": "bun run src/tools-execution/tools/index.ts",
     "s03": "bun run src/planning-coordination/todo-write/index.ts",

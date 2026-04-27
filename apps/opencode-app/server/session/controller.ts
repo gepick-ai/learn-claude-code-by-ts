@@ -1,40 +1,40 @@
-import { Hono } from "hono";
-import { sessionService } from "./service";
+import { Hono } from "hono"
+import { sessionService } from "./service"
 
-const sessionController = new Hono();
+const sessionController = new Hono()
 
 sessionController.post("/", async (c) => {
-  const sessionId = await sessionService.createSession();
-  return c.json({ sessionId });
-});
+  const sessionID = await sessionService.createSession()
+  return c.json({ sessionId: sessionID })
+})
 
-sessionController.get("/:sessionId", async (c) => {
-  const sessionId = c.req.param("sessionId");
-  const messages = await sessionService.getSessionMessages(sessionId);
+sessionController.get("/:sessionID", async (c) => {
+  const sessionID = c.req.param("sessionID")
+  const messages = await sessionService.getSessionMessages(sessionID)
   if (!messages) {
-    return c.json({ error: "Session not found" }, 404);
+    return c.json({ error: "Session not found" }, 404)
   }
-  return c.json({ messages });
-});
+  return c.json({ messages })
+})
 
-sessionController.post("/:sessionId/message", async (c) => {
+sessionController.post("/:sessionID/message", async (c) => {
   try {
-    const sessionId = c.req.param("sessionId");
-    const { message } = await c.req.json();
+    const sessionID = c.req.param("sessionID")
+    const { message } = await c.req.json()
     if (!message) {
-      return c.json({ error: "message is required" }, 400);
+      return c.json({ error: "message is required" }, 400)
     }
 
-    const result = await sessionService.chatWithSession(sessionId, message);
+    const result = await sessionService.chatWithSession(sessionID, message)
     return c.json({
       success: true,
       response: result.response,
       messages: result.messages,
-    });
+    })
   } catch (error) {
-    console.error("Chat error:", error);
-    return c.json({ error: "Internal server error" }, 500);
+    console.error("Chat error:", error)
+    return c.json({ error: "Internal server error" }, 500)
   }
-});
+})
 
-export default sessionController;
+export default sessionController
