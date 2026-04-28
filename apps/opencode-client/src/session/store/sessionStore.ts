@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { STORAGE_SESSION_ID, STORAGE_SESSION_LIST, type SessionListEntry } from "@/lib/storageKeys"
+import { LEGACY_STORAGE_SESSION_LIST, STORAGE_SESSION_ID } from "@/lib/storageKeys"
 import * as sessionApi from "../api"
 import { preferRicherLocalParts } from "../messages/assistantVisibility"
 import { mergePartDelta, mergePartUpdated } from "../sse/applySseToMessages"
@@ -31,32 +31,12 @@ function makeOptimisticUserMessage(sessionId: string, text: string): SessionMess
 
 type SessionRow = { id: string; title: string }
 
-function readList(): SessionRow[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_SESSION_LIST)
-    if (!raw) return []
-    const parsed = JSON.parse(raw) as unknown
-    if (!Array.isArray(parsed)) return []
-    return parsed
-      .map((e) => {
-        if (e && typeof e === "object" && "id" in e && "title" in e) {
-          const o = e as { id: unknown; title: unknown }
-          if (typeof o.id === "string" && typeof o.title === "string") {
-            return { id: o.id, title: o.title }
-          }
-        }
-        return null
-      })
-      .filter((e): e is SessionRow => e != null)
-  } catch {
-    return []
-  }
-}
-
-function writeList(sessions: SessionRow[]) {
-  const payload: SessionListEntry[] = sessions.map((s) => ({ id: s.id, title: s.title }))
-  localStorage.setItem(STORAGE_SESSION_LIST, JSON.stringify(payload))
-}
+/**
+ * React 18 开发态 StrictMode 会「挂载 → 卸挂载 → 再挂载」，useEffect 会连跑两次；
+ * 若在首个 `await` 之后才把 `hydrated` 置 true，两次都会通过 `if (!hydrated)`，导致
+ * `GET /session` 与 `GET .../message` 各发两遍。与 `sessionSseClient` 一样用进行中 Promise 去重。
+ */
+let hydrateInFlight: Promise<void> | null = null
 
 function readCurrentId(): string | null {
   return localStorage.getItem(STORAGE_SESSION_ID)
@@ -182,42 +162,39 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
       hydrate: async () => {
         if (get().hydrated) return
-        set({ listLoading: true, lastError: null })
-        try {
-          const storedList = readList()
-          const storedId = readCurrentId()
-          const sessions = [...storedList]
-
-          if (storedId && !sessions.some((s) => s.id === storedId)) {
-            const meta = await sessionApi.getSession(storedId)
-            sessions.push({ id: meta.id, title: meta.title })
-          }
-
-          for (let i = 0; i < sessions.length; i++) {
+        if (hydrateInFlight) return hydrateInFlight
+        hydrateInFlight = (async () => {
+          set({ listLoading: true, lastError: null })
+          try {
+            const storedId = readCurrentId()
+            const list = await sessionApi.listSessions()
             try {
-              const meta = await sessionApi.getSession(sessions[i].id)
-              sessions[i] = { id: meta.id, title: meta.title }
+              localStorage.removeItem(LEGACY_STORAGE_SESSION_LIST)
             } catch {
-              /* 忽略已删除或失效的项 */
+              /* 非浏览器环境等 */
             }
-          }
-          writeList(sessions)
 
-          const current =
-            storedId && sessions.some((s) => s.id === storedId) ? storedId : sessions[0]?.id ?? null
-          if (current) writeCurrentId(current)
-          set({ sessions, currentSessionId: current, hydrated: true, listLoading: false })
+            const sessions: SessionRow[] = list.map((s) => ({ id: s.id, title: s.title }))
+            const current =
+              storedId && sessions.some((s) => s.id === storedId) ? storedId : (sessions[0]?.id ?? null)
+            if (current) writeCurrentId(current)
+            else writeCurrentId(null)
+            set({ sessions, currentSessionId: current, hydrated: true, listLoading: false })
 
-          if (current) {
-            await get().loadMessages(current)
+            if (current) {
+              await get().loadMessages(current)
+            }
+          } catch (e) {
+            set({
+              listLoading: false,
+              hydrated: true,
+              lastError: e instanceof Error ? e.message : "无法加载会话",
+            })
+          } finally {
+            hydrateInFlight = null
           }
-        } catch (e) {
-          set({
-            listLoading: false,
-            hydrated: true,
-            lastError: e instanceof Error ? e.message : "无法加载会话",
-          })
-        }
+        })()
+        return hydrateInFlight
       },
 
       createNewSession: async () => {
@@ -226,7 +203,6 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
           const { session } = await sessionApi.createSession()
           const row = { id: session.id, title: session.title }
           const sessions = [row, ...get().sessions.filter((s) => s.id !== row.id)]
-          writeList(sessions)
           writeCurrentId(row.id)
           set({
             sessions,
@@ -285,7 +261,6 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
           loadTarget = nextCurrent
         }
 
-        writeList(filtered)
         if (nextCurrent) writeCurrentId(nextCurrent)
         else writeCurrentId(null)
 

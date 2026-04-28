@@ -24,6 +24,39 @@ export async function createSession(): Promise<CreateSessionResponse> {
   return data
 }
 
+/** 与会话资源 `GET /session` 对齐；服务端按最近更新时间排序。 */
+export async function listSessions(options?: { limit?: number }): Promise<SessionMeta[]> {
+  const params = new URLSearchParams()
+  if (options?.limit != null) params.set("limit", String(options.limit))
+  const q = params.toString()
+  const res = await fetch(apiUrl(`/session${q ? `?${q}` : ""}`))
+  const raw = await readTextSafe(res)
+  if (!res.ok) throw new Error(`list sessions failed: ${res.status}`)
+  if (!raw.trim()) return []
+  let data: unknown
+  try {
+    data = JSON.parse(raw)
+  } catch {
+    throw new Error("list sessions: invalid JSON")
+  }
+  if (!Array.isArray(data)) return []
+  const out: SessionMeta[] = []
+  for (const e of data) {
+    if (e && typeof e === "object" && "id" in e && "title" in e) {
+      const o = e as { id: unknown; title: unknown; createdAt?: unknown; updatedAt?: unknown }
+      if (typeof o.id === "string" && typeof o.title === "string") {
+        out.push({
+          id: o.id,
+          title: o.title,
+          createdAt: typeof o.createdAt === "number" ? o.createdAt : 0,
+          updatedAt: typeof o.updatedAt === "number" ? o.updatedAt : 0,
+        })
+      }
+    }
+  }
+  return out
+}
+
 export async function getSession(sessionId: string): Promise<SessionMeta> {
   const res = await fetch(apiUrl(`/session/${encodeURIComponent(sessionId)}`))
   const raw = await readTextSafe(res)
