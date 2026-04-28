@@ -18,32 +18,32 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
   while (true) {
     // 获取会话消息列表
     const sessionMessages = await messageService.listMessages({ sessionId })
-    let lastUserMessage: UserMessage | undefined;
-    let lastAssistantMessage: AssistantMessage | undefined;
-    let lastFinishedAssistantMessage: AssistantMessage | undefined;
+    let lastestUserMessage: UserMessage | undefined;
+    let lastestAssistantMessage: AssistantMessage | undefined;
+    let lastestFinishedAssistantMessage: AssistantMessage | undefined;
 
     for (let i = sessionMessages.length - 1; i >= 0; i--) {
       const sessionMessage = sessionMessages[i]!;
      
       if(sessionMessage.message.role === "user"){
-         // 找到最后一个用户消息
-        if(!lastUserMessage) lastUserMessage = sessionMessage.message;
+         // 找到最新用户消息
+        if(!lastestUserMessage) lastestUserMessage = sessionMessage.message;
       }
      
       if(sessionMessage.message.role === "assistant"){
-         // 找到最后一个助手消息
-        if(!lastAssistantMessage) lastAssistantMessage = sessionMessage.message;
-        // 找到最后一个完成状态的助手消息
-        if(!lastFinishedAssistantMessage && sessionMessage.message.finish) lastFinishedAssistantMessage = sessionMessage.message;
+         // 找到最新助手消息
+        if(!lastestAssistantMessage) lastestAssistantMessage = sessionMessage.message;
+        // 找到最新完成状态的助手消息
+        if(!lastestFinishedAssistantMessage && sessionMessage.message.finish) lastestFinishedAssistantMessage = sessionMessage.message;
       }
 
-      // 如果找到最后一个用户消息和最后一个完成状态的助手消息，则退出循环
-      if(lastUserMessage && lastFinishedAssistantMessage) break;
+      // 如果找到最新用户消息和最新完成状态的助手消息，则退出循环
+      if(lastestUserMessage && lastestFinishedAssistantMessage) break;
     }
 
-    if (!lastUserMessage) throw new Error("No user message found in stream. This should never happen.")
-    // 如果最后一个助手消息是完成状态且不是tool-calls或unknown，则退出循环。即认为模型已经完成任务。
-    if(lastAssistantMessage?.finish && !["tool-calls", "unknown"].includes(lastAssistantMessage.finish) && lastUserMessage.id < lastAssistantMessage.id) {
+    if (!lastestUserMessage) throw new Error("No user message found in stream. This should never happen.")
+    // 如果最新助手消息是完成状态且不是tool-calls或unknown，则退出循环。即认为模型已经完成任务。
+    if(lastestAssistantMessage?.finish && !["tool-calls", "unknown"].includes(lastestAssistantMessage.finish) && lastestUserMessage.id < lastestAssistantMessage.id) {
       console.info("exiting loop", { sessionId })
       break;
     }
