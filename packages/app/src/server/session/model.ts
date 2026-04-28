@@ -1,4 +1,6 @@
 import z from "zod"
+import { LLM } from "../../agent/llm"
+import { UnknownError } from "@gepick/core"
 
 // #region Session
 export const Session = z.object({
@@ -31,7 +33,16 @@ export type UserMessage = z.infer<typeof UserMessage>
 export const AssistantMessage = MessageBase.extend({
   role: z.literal("assistant"),
   finish: z.string().optional(),
-  error: z.string().optional(),
+  error: z
+  .discriminatedUnion("name", [
+    LLM.OutputLengthError.Schema,
+    LLM.AbortedError.Schema,
+    LLM.AuthError.Schema,
+    LLM.StructuredOutputError.Schema,
+    LLM.ContextOverflowError.Schema,
+    LLM.APIError.Schema,
+    UnknownError.Schema,
+  ]).optional(),
 }).meta({
   ref: "AssistantMessage",
 })

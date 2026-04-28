@@ -245,6 +245,7 @@ class MessageService {
       sessionId: input.sessionId,
       role: 'assistant' as const,
       createdAt: Date.now(),
+
     }
 
     await messageModel.updateMessage(message);

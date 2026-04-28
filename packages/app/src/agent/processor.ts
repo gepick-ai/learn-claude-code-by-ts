@@ -2,8 +2,15 @@ import { LLM, type StreamInput } from "./llm"
 import type { AssistantMessage, ReasoningPart, TextPart, ToolPart } from "../server/session/model"
 import { Identifier } from "../util/id"
 import { messageModel, partModel } from "../server/session/dao"
+import { SessionRetry } from "./retry"
 
 const RETRY_LIMIT = 2
+
+export enum NextAction {
+  CONTINUE = "continue",
+  STOP = "stop",
+  COMPACT = "compact",
+}
 
 export namespace Processor {
   export function create(input: {
@@ -13,6 +20,8 @@ export namespace Processor {
     const toolPartMap = new Map<string, ToolPart>()
     let step = 0
     let blocked = false
+    let attempt = 0
+    let needsCompaction = false
 
     const processor = {
       get message() {
@@ -22,7 +31,7 @@ export namespace Processor {
         return step
       },
       async process(streamInput: StreamInput) {
-        let attempt = 0
+        needsCompaction = false;
         while (true) {
           try {
             const reasoningPartMap = new Map<string, ReasoningPart>()
@@ -82,7 +91,7 @@ export namespace Processor {
 
                 // #region tool calling
                 case "tool-input-start": {
-                  const toolPart:ToolPart = {
+                  const toolPart: ToolPart = {
                     id: Identifier.ascending("part"),
                     sessionId: input.assistantMessage.sessionId,
                     messageId: input.assistantMessage.id,
@@ -94,7 +103,7 @@ export namespace Processor {
                       input: {},
                     }
                   }
-                  
+
                   await partModel.updatePart(toolPart)
                   toolPartMap.set(evt.id, toolPart)
 
@@ -104,7 +113,7 @@ export namespace Processor {
                 case "tool-input-end": break
                 case "tool-call": {
                   let toolPart = toolPartMap.get(evt.toolCallId);
-                  if(toolPart) {
+                  if (toolPart) {
                     toolPart = {
                       ...toolPart,
                       tool: evt.toolName,
@@ -121,7 +130,7 @@ export namespace Processor {
                 }
                 case "tool-result": {
                   let toolPart = toolPartMap.get(evt.toolCallId);
-                  if(toolPart && toolPart.state.status === "running") {
+                  if (toolPart && toolPart.state.status === "running") {
                     toolPart = {
                       ...toolPart,
                       state: {
@@ -137,12 +146,12 @@ export namespace Processor {
                 }
                 case "tool-error": {
                   let toolPart = toolPartMap.get(evt.toolCallId);
-                  if(toolPart && toolPart.state.status === "running") {
+                  if (toolPart && toolPart.state.status === "running") {
                     toolPart = {
                       ...toolPart,
                       state: {
                         status: "error",
-                        input: evt.input?? toolPart.state.input,
+                        input: evt.input ?? toolPart.state.input,
                         error: (evt.error as any).toString()
                       }
                     }
@@ -154,8 +163,8 @@ export namespace Processor {
                 // #endregion tool calling
 
                 // #region saying
-                case "text-start":{
-                  const textPart:TextPart  = {
+                case "text-start": {
+                  const textPart: TextPart = {
                     id: Identifier.ascending("part"),
                     sessionId: input.assistantMessage.sessionId,
                     messageId: input.assistantMessage.id,
@@ -171,7 +180,7 @@ export namespace Processor {
                 case "text-delta": {
                   const textPart = textPartMap.get(evt.id)
 
-                  if(textPart) {
+                  if (textPart) {
                     textPart.text += evt.text
                     await partModel.updatePartDelta({
                       sessionId: textPart.sessionId,
@@ -184,9 +193,9 @@ export namespace Processor {
 
                   break
                 }
-                case "text-end":{
+                case "text-end": {
                   const textPart = textPartMap.get(evt.id)
-                  if(textPart) {
+                  if (textPart) {
                     textPart.text = textPart.text.trimEnd()
                     await partModel.updatePart(textPart)
                     textPartMap.delete(evt.id)
@@ -211,19 +220,32 @@ export namespace Processor {
                 default: continue
               }
             }
-          } catch (err:any) {
+          } catch (err: any) {
             console.error("process", {
               error: err,
               stack: JSON.stringify(err.stack),
             })
 
-            blocked = true; //  TODO: 根据错误类型决定是否重试，这里先block退出
+            const error = LLM.fromError(err)
+
+            if (LLM.ContextOverflowError.is(error)) {
+              needsCompaction = true
+            } else {
+              const retry = SessionRetry.checkRetryable(error);
+              if (retry.isRetryable) {
+                attempt++
+                continue
+
+              }
+
+              input.assistantMessage.error = error
+            }
           }
 
           const parts = await partModel.getParts(input.assistantMessage.id)
-          for(let part of parts) {
+          for (let part of parts) {
             if (part.type === "tool") {
-              if(part.state.status !== "completed" && part.state.status !== "error") {
+              if (part.state.status !== "completed" && part.state.status !== "error") {
                 part = {
                   ...part,
                   state: {
@@ -238,12 +260,12 @@ export namespace Processor {
 
             }
           }
-          
+
           await messageModel.updateMessage(input.assistantMessage);
           
-          if (input.assistantMessage.error) return "stop"
-          if (blocked) return "stop"
-          return "continue"
+          if (needsCompaction) return NextAction.COMPACT
+          if (blocked || input.assistantMessage.error) return NextAction.STOP
+          return NextAction.CONTINUE
         }
       },
     }

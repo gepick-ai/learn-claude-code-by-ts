@@ -1,4 +1,4 @@
-import { sqliteTable, text, index } from "drizzle-orm/sqlite-core"
+import { sqliteTable, text } from "drizzle-orm/sqlite-core"
 import { Timestamps } from "../../storage/timestamps"
 
 export const ProjectTable = sqliteTable("project", {
