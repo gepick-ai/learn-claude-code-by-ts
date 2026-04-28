@@ -43,9 +43,8 @@ export function createApp() {
     }))
     .route("/session", sessionController)
     .route("/sse", sseController)
+    .get("/", (c) => c.json({ service: "opencode-app", documentation: "/doc" }))
 
-  const htmlPath = new URL("./frontend.html", import.meta.url)
-  app.get("/", async (c) => c.html(await Bun.file(htmlPath).text()))
   return app
 }
 

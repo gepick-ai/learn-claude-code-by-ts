@@ -74,7 +74,7 @@ type SessionState = {
   lastError: string | null
   hydrated: boolean
   /**
-   * 与现网 `frontend.html` 一致：本轮回合里**首条**带 `messageId` 的 SSE 视为 user 侧 id，用于跳过该 id 的增量（流式只合并助手侧）。
+   * 与现网会话流行为一致：本轮回合里**首条**带 `messageId` 的 SSE 视为 user 侧 id，用于跳过该 id 的增量（流式只合并助手侧）。
    * 在每次发送开始时清空，发送结束或切会话时清空。
    */
   turnAnchorMessageId: string | null
