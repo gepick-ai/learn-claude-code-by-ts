@@ -46,7 +46,7 @@ type SessionRow = { id: string; title: string; projectId: string }
 let hydrateInFlight: Promise<void> | null = null
 
 function readCurrentId(): string | null {
-  let id = localStorage.getItem(STORAGE_SESSION_ID)
+  const id = localStorage.getItem(STORAGE_SESSION_ID)
   if (id) return id
   const legacy = localStorage.getItem(LEGACY_STORAGE_SESSION_ID)
   if (legacy) {
@@ -125,6 +125,10 @@ type SessionState = {
   turnAnchorMessageId: string | null
   /** 正在执行删除 API 的会话 id，用于禁用对应项的删除按钮 */
   deletingSessionId: string | null
+  /** v6：会话历史抽屉是否打开 */
+  sessionHistoryOpen: boolean
+  setSessionHistoryOpen: (open: boolean) => void
+  toggleSessionHistory: () => void
 
   hydrate: () => Promise<void>
   createNewProject: () => Promise<void>
@@ -160,6 +164,11 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       hydrated: false,
       turnAnchorMessageId: null,
       deletingSessionId: null,
+      sessionHistoryOpen: false,
+
+      setSessionHistoryOpen: (open) => set({ sessionHistoryOpen: open }),
+
+      toggleSessionHistory: () => set((s) => ({ sessionHistoryOpen: !s.sessionHistoryOpen })),
 
       clearError: () => set({ lastError: null }),
 

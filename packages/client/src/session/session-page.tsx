@@ -1,15 +1,14 @@
 import { useEffect } from "react"
 import { SessionChatPanel, useSessionSse } from "./chat"
-import { SessionHistoryPanel } from "./history"
+import { SessionHistoryDrawer } from "./history"
 import { ProjectPanel } from "./project"
 import { SessionSlotPanel } from "./slot"
 import { useSessionStore } from "./session-store"
 import { cn } from "@/util/cn"
 
-/** 会话壳：左 project / 中 slot+chat（2:1）/ 右 history（无 project 时隐藏 history）。 */
+/** 会话壳（v6）：左 project / 中 slot+chat（2:1）；会话历史为叠层抽屉。 */
 export function SessionPage() {
   useSessionSse()
-  const hasProjects = useSessionStore((s) => s.projects.length > 0)
 
   useEffect(() => {
     void useSessionStore.getState().hydrate()
@@ -32,7 +31,7 @@ export function SessionPage() {
           <SessionChatPanel />
         </div>
       </div>
-      {hasProjects && <SessionHistoryPanel />}
+      <SessionHistoryDrawer />
     </div>
   )
 }

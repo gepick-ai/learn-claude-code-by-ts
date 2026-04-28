@@ -1,11 +1,15 @@
-import { useCallback, useState } from "react"
-import { Loader2, Plus } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
 import { useSessionStore } from "../session-store"
 import { DeleteSessionConfirmDialog } from "./delete-session-confirm-dialog"
 import { SessionListItem } from "./session-list-item"
-import { cn } from "@/util/cn"
 
-export function SessionHistoryPanel() {
+export type SessionHistoryContentProps = {
+  /** 供抽屉层判断：删除确认打开时不应被 Escape 关掉抽屉 */
+  onDeleteDialogOpenChange?: (open: boolean) => void
+}
+
+export function SessionHistoryContent({ onDeleteDialogOpenChange }: SessionHistoryContentProps) {
   const {
     sessions,
     currentProjectId,
@@ -14,13 +18,17 @@ export function SessionHistoryPanel() {
     hydrated,
     lastError,
     deletingSessionId,
-    createNewSession,
     selectSession,
     deleteSession,
     clearError,
+    setSessionHistoryOpen,
   } = useSessionStore()
 
   const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null)
+
+  useEffect(() => {
+    onDeleteDialogOpenChange?.(pendingDelete !== null)
+  }, [pendingDelete, onDeleteDialogOpenChange])
 
   const openDeleteConfirm = useCallback(
     (id: string) => {
@@ -30,39 +38,22 @@ export function SessionHistoryPanel() {
     [sessions],
   )
 
+  const handleSelectSession = useCallback(
+    (id: string) => {
+      void (async () => {
+        await selectSession(id)
+        setSessionHistoryOpen(false)
+      })()
+    },
+    [selectSession, setSessionHistoryOpen],
+  )
+
   return (
-    <aside
-      className={cn(
-        "flex h-full min-h-0 w-[240px] shrink-0 flex-col border-l border-slate-200 bg-white",
-        "shadow-sm shadow-slate-200/50",
-      )}
-      aria-label="会话历史"
-    >
-      <div className="shrink-0 border-b border-slate-200 px-3 py-3">
-        <p className="mb-2 truncate font-mono text-[11px] text-slate-500" title={currentProjectId ?? ""}>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="shrink-0 border-b border-slate-200 px-3 py-2">
+        <p className="truncate font-mono text-[11px] text-slate-500" title={currentProjectId ?? ""}>
           {currentProjectId ? `Project: ${currentProjectId}` : "请先创建或选择 Project"}
         </p>
-        <button
-          type="button"
-          onClick={() => {
-            void createNewSession()
-          }}
-          disabled={listLoading || !hydrated || !currentProjectId}
-          className={cn(
-            "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2.5",
-            "bg-indigo-600 text-sm font-medium text-white",
-            "transition-colors duration-200 hover:bg-indigo-700",
-            "focus:outline-none focus:ring-2 focus:ring-indigo-500/60 focus:ring-offset-2 focus:ring-offset-white",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-          )}
-        >
-          {listLoading ? (
-            <Loader2 className="h-4 w-4 shrink-0 animate-spin" strokeWidth={2} aria-hidden />
-          ) : (
-            <Plus className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-          )}
-          新建会话
-        </button>
       </div>
 
       {lastError && (
@@ -86,7 +77,7 @@ export function SessionHistoryPanel() {
           </div>
         ) : sessions.length === 0 ? (
           <p className="px-2 py-6 text-center text-sm leading-relaxed text-slate-500">
-            尚无会话。点击「新建会话」开始。
+            尚无会话。请在 Chat 工具栏点击「新建会话」。
           </p>
         ) : (
           sessions.map((s) => (
@@ -96,9 +87,7 @@ export function SessionHistoryPanel() {
               title={s.title}
               isActive={s.id === currentSessionId}
               isDeleting={deletingSessionId === s.id}
-              onSelect={(id) => {
-                void selectSession(id)
-              }}
+              onSelect={handleSelectSession}
               onDelete={openDeleteConfirm}
             />
           ))
@@ -118,6 +107,6 @@ export function SessionHistoryPanel() {
           })()
         }}
       />
-    </aside>
+    </div>
   )
 }

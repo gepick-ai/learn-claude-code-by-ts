@@ -41,7 +41,9 @@ export function SessionListItem({
           strokeWidth={1.75}
           aria-hidden
         />
-        <span className="min-w-0 flex-1 truncate font-medium">{title || "无标题"}</span>
+        <span className="min-w-0 flex-1 wrap-break-word text-left font-medium leading-snug line-clamp-2">
+          {title || "无标题"}
+        </span>
       </button>
       <button
         type="button"

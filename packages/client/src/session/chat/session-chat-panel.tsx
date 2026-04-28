@@ -4,6 +4,7 @@ import { useSessionStore } from "../session-store"
 import type { SessionMessage } from "@gepick/sdk"
 import { MessageTranscript } from "./message-transcript"
 import { MessageComposer } from "./message-composer"
+import { SessionChatToolbar } from "./session-chat-toolbar"
 import { cn } from "@/util/cn"
 
 /** Zustand selector 必须对「无消息」返回**稳定**引用，否则 `[]` 每次新建引用会触发无限重渲染。 */
@@ -34,6 +35,7 @@ export function SessionChatPanel() {
       className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-slate-50/80"
       aria-label="当前会话"
     >
+      <SessionChatToolbar />
       <div
         ref={scrollRef}
         className={cn(
@@ -48,7 +50,7 @@ export function SessionChatPanel() {
           emptyHint={
             currentSessionId
               ? "此会话还没有消息。在下方输入并发送，开始与助手对话。"
-              : "在右侧选择会话或「新建会话」后，可在此与助手交流。"
+              : "请在上方工具栏「新建会话」或打开「会话历史」选择会话后，可在此与助手交流。"
           }
         />
       </div>

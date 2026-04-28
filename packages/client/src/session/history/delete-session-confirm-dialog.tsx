@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef } from "react"
 import { createPortal } from "react-dom"
 import { AlertTriangle, Loader2 } from "lucide-react"
+import { acquireBodyScrollLock, releaseBodyScrollLock } from "@/util/body-scroll-lock"
 import { cn } from "@/util/cn"
 
 export type DeleteSessionConfirmDialogProps = {
@@ -39,10 +40,9 @@ export function DeleteSessionConfirmDialog({
 
   useEffect(() => {
     if (!open) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    acquireBodyScrollLock()
     return () => {
-      document.body.style.overflow = prev
+      releaseBodyScrollLock()
     }
   }, [open])
 
