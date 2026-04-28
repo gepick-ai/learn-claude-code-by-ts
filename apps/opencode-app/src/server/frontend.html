@@ -138,6 +138,8 @@
     </div>
 
     <script>
+        const SESSION_STORAGE_KEY = 'opencode-app.sessionId';
+
         let sessionId = null;
         /** 当前一次发送中，首条 part 的 messageId 视为用户消息，其余为助理回复 */
         let turnUserMessageId = null;
@@ -160,10 +162,8 @@
             return `[tool] ${t} (${st || '—'})`;
         }
 
-        function ensurePartElement(part) {
-            let el = partEls.get(part.id);
-            if (el) return el;
-            el = document.createElement('div');
+        function createPartMessageEl(part) {
+            const el = document.createElement('div');
             if (part.type === 'text') {
                 el.className = 'message assistant';
             } else if (part.type === 'reasoning') {
@@ -178,10 +178,42 @@
             } else if (part.type === 'tool') {
                 el.textContent = formatToolPart(part);
             }
+            return el;
+        }
+
+        function ensurePartElement(part) {
+            let el = partEls.get(part.id);
+            if (el) return el;
+            el = createPartMessageEl(part);
             messagesEl.appendChild(el);
             partEls.set(part.id, el);
             messagesEl.scrollTop = messagesEl.scrollHeight;
             return el;
+        }
+
+        function renderHistory(sessionMessages) {
+            if (!Array.isArray(sessionMessages) || sessionMessages.length === 0) return;
+            for (const sm of sessionMessages) {
+                const msg = sm.message;
+                const parts = sm.parts || [];
+                if (msg.role === 'user') {
+                    for (const p of parts) {
+                        if (p.type === 'text' && !p.ignored) {
+                            addMessage(p.text || '', 'user');
+                        }
+                    }
+                } else {
+                    for (const p of parts) {
+                        if (p.type === 'text' || p.type === 'reasoning' || p.type === 'tool') {
+                            messagesEl.appendChild(createPartMessageEl(p));
+                        }
+                    }
+                    if (msg.error) {
+                        addMessage('错误: ' + msg.error, 'assistant');
+                    }
+                }
+            }
+            messagesEl.scrollTop = messagesEl.scrollHeight;
         }
 
         const es = new EventSource('/sse/event');
@@ -252,9 +284,32 @@
         };
 
         async function init() {
-            const res = await fetch('/session', { method: 'POST' });
-            const data = await res.json();
-            sessionId = data.sessionId;
+            const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+            if (stored) {
+                try {
+                    const sRes = await fetch('/session/' + encodeURIComponent(stored));
+                    if (sRes.ok) {
+                        const mRes = await fetch('/session/' + encodeURIComponent(stored) + '/message');
+                        if (mRes.ok) {
+                            const list = await mRes.json();
+                            sessionId = stored;
+                            renderHistory(list);
+                        } else {
+                            localStorage.removeItem(SESSION_STORAGE_KEY);
+                        }
+                    } else {
+                        localStorage.removeItem(SESSION_STORAGE_KEY);
+                    }
+                } catch {
+                    localStorage.removeItem(SESSION_STORAGE_KEY);
+                }
+            }
+            if (!sessionId) {
+                const res = await fetch('/session', { method: 'POST' });
+                const data = await res.json();
+                sessionId = data.sessionId;
+                localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+            }
             inputEl.disabled = false;
             sendBtn.disabled = false;
             inputEl.focus();
