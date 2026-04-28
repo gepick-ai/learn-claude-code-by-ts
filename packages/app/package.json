@@ -11,6 +11,7 @@
     "db:generate": "bun drizzle-kit generate --config drizzle.config.ts"
   },
   "dependencies": {
+    "@gepick/core": "workspace:*",
     "@ai-sdk/anthropic": "catalog:",
     "@anthropic-ai/sdk": "catalog:",
     "@hono/standard-validator": "catalog:",

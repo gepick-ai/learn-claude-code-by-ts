@@ -2,7 +2,7 @@ import { and, Database, SQL } from "../../storage/db"
 import { Session, type Message, type Part } from "./model"
 import { MessageTable, PartTable, SessionTable } from "./sql"
 import { eq, desc, inArray } from "../../storage/db"
-import { NotFoundError } from "../../util/error"
+import { NotFoundError } from "../../storage/error"
 import { Bus } from "../../util/bus"
 
 class SessionModel {
