@@ -59,7 +59,7 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
       messages: messageService.toModelMessages(sessionMessages),
       model: getModel(),
       system: SYSTEM,
-      tools: TOOLS,
+      tools: {},
     })
 
     if (nextAction === NextAction.STOP) break;
