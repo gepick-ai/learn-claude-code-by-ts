@@ -32,7 +32,6 @@ export namespace Processor {
 
             for await (const evt of result.fullStream) {
               switch (evt.type) {
-
                 case "start": // 流开始
                   break
                 case "start-step": { // 开始agent的一步
@@ -60,6 +59,13 @@ export namespace Processor {
                   const reasoningPart = reasoningPartMap.get(evt.id)
                   if (reasoningPart) {
                     reasoningPart.text += evt.text
+                    await partModel.updatePartDelta({
+                      sessionId: reasoningPart.sessionId,
+                      messageId: reasoningPart.messageId,
+                      partId: reasoningPart.id,
+                      field: "text",
+                      delta: evt.text,
+                    })
                   }
                   break
                 }
@@ -167,6 +173,13 @@ export namespace Processor {
 
                   if(textPart) {
                     textPart.text += evt.text
+                    await partModel.updatePartDelta({
+                      sessionId: textPart.sessionId,
+                      messageId: textPart.messageId,
+                      partId: textPart.id,
+                      field: "text",
+                      delta: evt.text,
+                    })
                   }
 
                   break
@@ -184,6 +197,7 @@ export namespace Processor {
                 // #endregion saying
 
                 case "finish-step": {// 结束agent的一步
+                  input.assistantMessage.finish = evt.finishReason
                   break
                 }
                 case "finish": {// 流结束
@@ -194,17 +208,16 @@ export namespace Processor {
                   throw evt.error
                 }
 
-                default:
-                  break
+                default: continue
               }
             }
-          } catch (err) {
-            attempt += 1
-            if (attempt > RETRY_LIMIT) {
-              return {
-                status: "stop" as const,
-              }
-            }
+          } catch (err:any) {
+            console.error("process", {
+              error: err,
+              stack: JSON.stringify(err.stack),
+            })
+
+            blocked = true; //  TODO: 根据错误类型决定是否重试，这里先block退出
           }
 
           const parts = await partModel.getParts(input.assistantMessage.id)

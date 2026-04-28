@@ -3,6 +3,7 @@ import { Session, type Message, type Part } from "./model"
 import { MessageTable, PartTable, SessionTable } from "./sql"
 import { eq, desc, inArray } from "../../storage/db"
 import { NotFoundError } from "../../util/error"
+import { Bus } from "../../util/bus"
 
 class SessionModel {
     async createSession(session: Session) {
@@ -125,6 +126,12 @@ class PartModel {
                 .run()
         })
 
+        Bus.publish({
+            type: "session.part.updated",
+            properties: {
+                part: structuredClone(part),
+            },
+        })
 
         return part
     }
@@ -140,6 +147,19 @@ class PartModel {
             sessionId: row.session_id,
             messageId: row.message_id,
         }) as Part)
+    }
+
+    async updatePartDelta(input: {
+        sessionId: string
+        messageId: string
+        partId: string
+        field: string
+        delta: string
+    }) {
+        Bus.publish({
+            type: "session.part.delta",
+            properties: input,
+        })
     }
 }
 

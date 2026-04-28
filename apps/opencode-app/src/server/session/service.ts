@@ -113,11 +113,7 @@ class MessageService {
       const { message, parts } = sessionMessage
 
       if (message.role === "user") {
-        const userMessage: UIMessage = {
-          id: message.id,
-          role: "user",
-          parts: []
-        }
+        const userMessage: UIMessage = { id: message.id, role: "user", parts: []}
 
         for (const p of parts) {
           if (p.type === "text" && !p.ignored) {
@@ -133,40 +129,52 @@ class MessageService {
       if (message.role === "assistant") {
         const assistantMessage: UIMessage = { id: message.id, role: "assistant", parts: [] }
 
-        for (const p of parts) {
-          if (p.type === "text") {
-            assistantMessage.parts.push({ type: "text", text: p.text })
-          }
-          if (p.type === "tool") {
-            toolNames.add(p.tool)
-            const toolType = ("tool-" + p.tool) as `tool-${string}`
-            if (p.error) {
-              assistantMessage.parts.push({
-                type: toolType,
-                state: "output-error",
-                toolCallId: p.callId,
-                input: p.input ?? {},
-                errorText: p.error,
-              } as UIMessage["parts"][number])
-              continue
+        for (const part of parts) {
+          switch(part.type) {
+            case "reasoning": {
+              assistantMessage.parts.push({ type: "reasoning", text: part.text })
+              break;
             }
-            if (p.output != null) {
-              assistantMessage.parts.push({
-                type: toolType,
-                state: "output-available",
-                toolCallId: p.callId,
-                input: p.input ?? {},
-                output: p.output,
-              } as UIMessage["parts"][number])
-              continue
+            case "tool": {
+              switch(part.state.status) {
+                case "error": {
+                  assistantMessage.parts.push({
+                    type: ("tool-" + part.tool) as `tool-${string}`,
+                    state: "output-error",
+                    toolCallId: part.callId,
+                    input: part.state.input,
+                    errorText: part.state.error,
+                  })
+                  break;
+                }
+                case "completed": {
+                  assistantMessage.parts.push({
+                    type: ("tool-" + part.tool) as `tool-${string}`,
+                    state: "output-available",
+                    toolCallId: part.callId,
+                    input: part.state.input,
+                    output: part.state.output,
+                  })
+                  break;
+                }
+                // @ts-ignore
+                case "pending":
+                case "running": {
+                  assistantMessage.parts.push({
+                    type: ("tool-" + part.tool) as `tool-${string}`,
+                    state: "output-error",
+                    toolCallId: part.callId,
+                    input: part.state.input ,
+                    errorText:  "[Tool execution was interrupted]"
+                  })
+                }
+              }
+              break;
             }
-            assistantMessage.parts.push({
-              type: toolType,
-              state: "output-error",
-              toolCallId: p.callId,
-              input: p.input ?? {},
-              errorText: "[Tool execution was interrupted]",
-            } as UIMessage["parts"][number])
+            case "text": {
+              assistantMessage.parts.push({ type: "text", text: part.text })
+              break;
+            }
           }
         }
 

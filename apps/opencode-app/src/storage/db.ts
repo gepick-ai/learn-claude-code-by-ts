@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import { Database as BunDatabase } from "bun:sqlite"
 import { drizzle, type SQLiteBunDatabase } from "drizzle-orm/bun-sqlite"
 import { migrate } from "drizzle-orm/bun-sqlite/migrator"
-import { type SQLiteTransaction,integer } from "drizzle-orm/sqlite-core"
+import { type SQLiteTransaction } from "drizzle-orm/sqlite-core"
 export * from "drizzle-orm"
 import { Context } from "../util/context"
 import { lazy } from "../util/lazy"
@@ -28,6 +28,7 @@ export namespace Database {
 
   export const Client = lazy(() => {
     fs.mkdirSync(path.dirname(dbPath), { recursive: true })
+    fs.mkdirSync(migrationDir, { recursive: true })
 
     const sqlite = new BunDatabase(dbPath, { create: true })
     state.sqlite = sqlite
@@ -98,13 +99,4 @@ export namespace Database {
   }
 }
 
-
-
-export const Timestamps = {
-  created_at: integer()
-    .notNull()
-    .$default(() => Date.now()),
-  updated_at: integer()
-    .notNull()
-    .$onUpdate(() => Date.now()),
-}
+export { Timestamps } from "./timestamps"

@@ -1,6 +1,6 @@
 import { sqliteTable, text, index } from "drizzle-orm/sqlite-core"
 import type { Message, Part } from "./model"
-import { Timestamps } from "../../storage/db"
+import { Timestamps } from "../../storage/timestamps"
 
 export type MessageData = Omit<Message, "id" | "sessionId">
 export type PartData = Omit<Part, "id" | "sessionId" | "messageId">
