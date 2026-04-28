@@ -1,32 +1,56 @@
-import { useEffect, useMemo, useState } from "react"
-import { RotateCcw } from "lucide-react"
+import { useEffect, useMemo, useRef } from "react"
 import { useSessionStore } from "@/session/session-store"
 import { cn } from "@/util/cn"
 import { useCodeStore } from "./code-store"
 
+const PREVIEW_DEBOUNCE_MS = 450
+
 const EMPTY_MESSAGES: ReturnType<typeof useSessionStore.getState>["messagesBySession"][string] = []
 
 export function CodePanel() {
-  const [reloadSeed, setReloadSeed] = useState(0)
   const currentSessionId = useSessionStore((s) => s.currentSessionId)
+  const projectId = useSessionStore((s) => {
+    if (!s.currentSessionId) return null
+    return s.sessions.find((row) => row.id === s.currentSessionId)?.projectId ?? null
+  })
   const messages = useSessionStore((s) => {
     const sessionId = s.currentSessionId
     if (!sessionId) return EMPTY_MESSAGES
     return s.messagesBySession[sessionId] ?? EMPTY_MESSAGES
   })
-  const syncFromMessages = useCodeStore((s) => s.syncFromMessages)
+
+  const refreshPreview = useCodeStore((s) => s.refreshPreview)
   const html = useCodeStore((s) => (currentSessionId ? s.generatedHtmlBySession[currentSessionId] ?? "" : ""))
   const status = useCodeStore((s) =>
     currentSessionId ? (s.codePanelStatusBySession[currentSessionId] ?? "empty") : "empty",
   )
   const error = useCodeStore((s) => (currentSessionId ? s.codePanelErrorBySession[currentSessionId] : undefined))
+  const previewSource = useCodeStore((s) =>
+    currentSessionId ? s.previewSourceBySession[currentSessionId] ?? null : null,
+  )
+  const workspaceMissing = useCodeStore((s) =>
+    currentSessionId ? s.workspaceMissingBySession[currentSessionId] : undefined,
+  )
+
+  const scopeKey = `${currentSessionId ?? ""}:${projectId ?? ""}`
+  const prevScopeKeyRef = useRef("")
 
   useEffect(() => {
     if (!currentSessionId) return
-    syncFromMessages(currentSessionId, messages)
-  }, [currentSessionId, messages, syncFromMessages])
+    const switched = prevScopeKeyRef.current !== scopeKey
+    prevScopeKeyRef.current = scopeKey
+    const delay = switched ? 0 : PREVIEW_DEBOUNCE_MS
+    const id = window.setTimeout(() => {
+      void refreshPreview(currentSessionId, projectId, messages)
+    }, delay)
+    return () => window.clearTimeout(id)
+  }, [currentSessionId, projectId, messages, refreshPreview, scopeKey])
 
-  const frameKey = useMemo(() => `${currentSessionId ?? "none"}:${reloadSeed}:${html.length}`, [currentSessionId, html, reloadSeed])
+  const frameKey = useMemo(() => `${currentSessionId ?? "none"}:${html.length}`, [currentSessionId, html])
+
+  const emptyHint = workspaceMissing
+    ? "工作区暂无 index.html。请让助手在项目目录中创建该文件后，预览会自动更新。"
+    : "发送需求后，助手在工作区生成的页面会在这里运行（预览以磁盘 index.html 为准）。"
 
   return (
     <aside
@@ -36,21 +60,11 @@ export function CodePanel() {
       )}
       aria-label="代码业务区域"
     >
-      <header className="flex items-center justify-between border-b border-slate-200 px-3 py-2">
-        <div className="truncate text-xs font-medium uppercase tracking-wide text-slate-500">Code</div>
-        <button
-          type="button"
-          className={cn(
-            "inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-700",
-            "hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50",
-          )}
-          onClick={() => setReloadSeed((v) => v + 1)}
-          disabled={status !== "ready"}
-        >
-          <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
-          重新加载
-        </button>
-      </header>
+      {previewSource === "chat-fallback" ? (
+        <div className="border-b border-amber-100 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
+          预览来自聊天正文抽取（工作区缺少 index.html），可能与磁盘不一致。
+        </div>
+      ) : null}
 
       <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
         {status === "ready" ? (
@@ -64,12 +78,12 @@ export function CodePanel() {
         ) : null}
         {status === "empty" ? (
           <div className="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
-            发送需求后，助手生成的 HTML 会在这里运行。
+            {emptyHint}
           </div>
         ) : null}
         {status === "error" ? (
           <div className="flex h-full items-center justify-center px-6 text-center text-sm text-red-600">
-            {error ?? "HTML 提取失败，请让助手输出完整 HTML 后重试。"}
+            {error ?? "无法加载工作区预览，请稍后重试。"}
           </div>
         ) : null}
       </div>

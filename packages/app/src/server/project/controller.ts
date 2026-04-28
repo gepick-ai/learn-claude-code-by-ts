@@ -1,6 +1,8 @@
 import { Hono } from "hono"
 import { describeRoute, resolver, validator } from "hono-openapi"
 import z from "zod"
+import { NotFoundError } from "../../storage/error"
+import { errors } from "../error"
 import { Project } from "./model"
 import { projectService } from "./service"
 
@@ -61,6 +63,58 @@ projectController
       const query = c.req.valid("query")
       const projects = await projectService.listProjects(query)
       return c.json(projects)
+    },
+  )
+  .get("/:projectId/workspace/file",
+    describeRoute({
+      summary: "Read workspace file",
+      description:
+        "Read a UTF-8 text file under the project workspace (same path rules as Agent fs_read). Read-only.",
+      operationId: "project.readWorkspaceFile",
+      responses: {
+        200: {
+          description: "File contents",
+          content: {
+            "text/plain": {
+              schema: resolver(z.string()),
+            },
+          },
+        },
+        ...errors(400, 404),
+      },
+    }),
+    validator("param", z.object({ projectId: z.string() })),
+    validator(
+      "query",
+      z.object({
+        path: z
+          .string()
+          .optional()
+          .default("index.html")
+          .meta({ description: "Path relative to project workspace root (e.g. index.html)" }),
+      }),
+    ),
+    async (c) => {
+      const { projectId } = c.req.valid("param")
+      const relPath = c.req.valid("query").path
+      try {
+        const text = await projectService.readWorkspaceTextFile(projectId, relPath)
+        return c.body(text, 200, {
+          "Content-Type": "text/plain; charset=utf-8",
+        })
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          return c.json(e.toObject(), 404)
+        }
+        if (
+          e instanceof Error &&
+          (/Path escapes project workspace/.test(e.message) ||
+            /Absolute paths are not allowed/.test(e.message))
+        ) {
+          return c.json({ error: e.message }, 400)
+        }
+        throw e
+      }
     },
   )
 

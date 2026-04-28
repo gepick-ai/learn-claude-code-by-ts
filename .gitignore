@@ -40,3 +40,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # local SQLite session DB (@gepick/app)
 packages/app/store/data/
 packages/app/.data/
+
+# Agent project workspaces (v2 local .projects)
+.projects/

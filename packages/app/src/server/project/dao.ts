@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm"
 import { Database, desc } from "../../storage/db"
 import type { Project } from "./model"
 import { ProjectTable } from "./sql"
@@ -19,6 +20,17 @@ class ProjectModel {
         })
 
         return project
+    }
+
+    async getProjectById(id: string): Promise<Project | undefined> {
+        const row = Database.use((db) => db.select().from(ProjectTable).where(eq(ProjectTable.id, id)).get())
+        if (!row) return undefined
+        return {
+            id: row.id,
+            name: row.name,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+        }
     }
 
     async *listProjects(query: { limit?: number; offset?: number }): AsyncIterable<Project> {

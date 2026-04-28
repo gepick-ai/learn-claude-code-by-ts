@@ -1,5 +1,6 @@
 import { loop } from "../../agent/prompt"
 import z from "zod"
+import { ensureProjectWorkspace } from "../project/projects-root"
 import { Message, Session, SessionMessage, TextPart, ToolPart } from "./model"
 import { Identifier } from "../../util/id"
 import { messageModel, partModel, sessionModel } from "./dao"
@@ -59,6 +60,7 @@ class SessionService {
       updatedAt: now,
     }
 
+    await ensureProjectWorkspace(projectId)
     await sessionModel.createSession(session)
 
     return session

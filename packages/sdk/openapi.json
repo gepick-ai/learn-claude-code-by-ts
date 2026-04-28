@@ -63,6 +63,80 @@
         ]
       }
     },
+    "/project/{projectId}/workspace/file": {
+      "get": {
+        "operationId": "project.readWorkspaceFile",
+        "summary": "Read workspace file",
+        "description": "Read a UTF-8 text file under the project workspace (same path rules as Agent fs_read). Read-only.",
+        "responses": {
+          "200": {
+            "description": "File contents",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "projectId",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "path",
+            "schema": {
+              "default": "index.html",
+              "type": "string"
+            },
+            "description": "Path relative to project workspace root (e.g. index.html)"
+          }
+        ]
+      }
+    },
     "/session": {
       "post": {
         "operationId": "session.create",

@@ -11,6 +11,8 @@ import type {
   EventSubscribeResponses,
   ProjectCreateResponses,
   ProjectListResponses,
+  ProjectReadWorkspaceFileErrors,
+  ProjectReadWorkspaceFileResponses,
   SessionCreateResponses,
   SessionDeleteErrors,
   SessionDeleteResponses,
@@ -118,6 +120,40 @@ export class Project extends HeyApiClient {
       unknown,
       ThrowOnError
     >({ url: "/project", ...options });
+  }
+
+  /**
+   * Read workspace file
+   *
+   * Read a UTF-8 text file under the project workspace (same path rules as Agent fs_read). Read-only.
+   */
+  public readWorkspaceFile<ThrowOnError extends boolean = false>(
+    parameters: {
+      projectId: string;
+      path?: string;
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "projectId" },
+            { in: "query", key: "path" },
+          ],
+        },
+      ],
+    );
+    return (options?.client ?? this.client).get<
+      ProjectReadWorkspaceFileResponses,
+      ProjectReadWorkspaceFileErrors,
+      ThrowOnError
+    >({
+      url: "/project/{projectId}/workspace/file",
+      ...options,
+      ...params,
+    });
   }
 }
 

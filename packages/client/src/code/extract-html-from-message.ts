@@ -1,3 +1,7 @@
+/**
+ * 从单条助手消息文本中抽取「完整 HTML 文档」——**Code v1 / 客户端降级路径**。
+ * v2 下磁盘 `index.html` 为权威来源，勿将其当作生产预览主路径。
+ */
 export type ExtractHtmlResult =
   | { status: "ready"; html: string }
   | { status: "incomplete" }
