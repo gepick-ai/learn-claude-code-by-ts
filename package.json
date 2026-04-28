@@ -3,6 +3,31 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/opencode-app",
+      "apps/opencode-client",
+      "packages/learn-claude-code"
+    ],
+    "catalog": {
+      "@ai-sdk/anthropic": "^2.0.0",
+      "@anthropic-ai/sdk": "^0.80.0",
+      "@hono/standard-validator": "^0.2.2",
+      "@types/bun": "latest",
+      "@types/pg": "^8.20.0",
+      "ai": "^5.0.0",
+      "commander": "^14.0.3",
+      "dotenv": "^17.3.1",
+      "drizzle-kit": "1.0.0-beta.16-ea816b6",
+      "drizzle-orm": "1.0.0-beta.16-ea816b6",
+      "hono": "^4.12.14",
+      "hono-openapi": "^1.3.0",
+      "openai": "^6.33.0",
+      "pg": "^8.20.0",
+      "typescript": "^5",
+      "zod": "^4.3.6"
+    }
+  },
   "scripts": {
     "test": "bun test",
     "web": "bun run apps/app/index.ts",
@@ -11,39 +36,37 @@
     "db:opencode": "bun drizzle-kit --config apps/opencode-app/drizzle.config.ts",
     "db:push": "bun run db:opencode push",
     "db:generate": "bun run db:opencode generate",
-    "s01": "bun run src/tools-execution/agent-loop/index.ts",
-    "s02": "bun run src/tools-execution/tools/index.ts",
-    "s03": "bun run src/planning-coordination/todo-write/index.ts",
-    "s04": "bun run src/planning-coordination/subagent/index.ts",
-    "s05": "bun run src/planning-coordination/skills/index.ts",
-    "s06": "bun run src/memory-management/compact/index.ts",
-    "s07": "bun run src/planning-coordination/tasks/index.ts",
-    "s08": "bun run src/concurrency/background-tasks/index.ts",
-    "s09": "bun run src/collaboration/agent-team/index.ts",
-    "s10": "bun run src/collaboration/team-protocols/index.ts",
-    "s11": "bun run src/collaboration/autonomous-agents/index.ts",
-    "s12": "bun run src/collaboration/worktree-isolation/index.ts"
+    "s01": "bun run -F @agent-dev/learn-claude-code s01",
+    "s02": "bun run -F @agent-dev/learn-claude-code s02",
+    "s03": "bun run -F @agent-dev/learn-claude-code s03",
+    "s04": "bun run -F @agent-dev/learn-claude-code s04",
+    "s05": "bun run -F @agent-dev/learn-claude-code s05",
+    "s06": "bun run -F @agent-dev/learn-claude-code s06",
+    "s07": "bun run -F @agent-dev/learn-claude-code s07",
+    "s08": "bun run -F @agent-dev/learn-claude-code s08",
+    "s09": "bun run -F @agent-dev/learn-claude-code s09",
+    "s10": "bun run -F @agent-dev/learn-claude-code s10",
+    "s11": "bun run -F @agent-dev/learn-claude-code s11",
+    "s12": "bun run -F @agent-dev/learn-claude-code s12"
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.0",
-    "@anthropic-ai/sdk": "^0.80.0",
-    "@hono/standard-validator": "^0.2.2",
-    "@types/pg": "^8.20.0",
-    "ai": "^5.0.0",
-    "commander": "^14.0.3",
-    "dotenv": "^17.3.1",
-    "drizzle-kit": "1.0.0-beta.16-ea816b6",
-    "drizzle-orm": "1.0.0-beta.16-ea816b6",
-    "hono": "^4.12.14",
-    "hono-openapi": "^1.3.0",
-    "openai": "^6.33.0",
-    "pg": "^8.20.0",
-    "zod": "^4.3.6"
+    "@agent-dev/learn-claude-code": "workspace:*",
+    "@ai-sdk/anthropic": "catalog:",
+    "@anthropic-ai/sdk": "catalog:",
+    "@hono/standard-validator": "catalog:",
+    "@types/pg": "catalog:",
+    "ai": "catalog:",
+    "commander": "catalog:",
+    "drizzle-kit": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:",
+    "hono-openapi": "catalog:",
+    "openai": "catalog:",
+    "pg": "catalog:",
+    "zod": "catalog:"
   }
 }

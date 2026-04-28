@@ -114,7 +114,7 @@ Map {
 ### 文件位置
 
 ```
-src/
+packages/learn-claude-code/src/
 ├── common/
 │   ├── main.ts           # Terminal 入口
 │   └── tools/fs.ts       # 工具实现
@@ -122,8 +122,8 @@ src/
 └── tools-execution/
     └── agent-loop/index.ts  # s01: agentLoop 实现
 
-app/
-└── agent-core.ts         # 从 s01 提取的核心逻辑
+apps/app/
+└── agent/…               # 从 s01 提取的核心逻辑（如 core.ts）
 ```
 
 ### agentLoop 核心逻辑
@@ -349,7 +349,7 @@ const sessions = new Map<string, Anthropic.MessageParam[]>();
 | `TOOLS` | 工具定义数组 |
 | `agentLoop(prompt, messages)` | 核心循环函数 |
 
-**关键点**：这个文件可以直接从 `src/tools-execution/agent-loop/index.ts` 复制过来，代码完全一样！
+**关键点**：这个文件可以直接从 `packages/learn-claude-code/src/tools-execution/agent-loop/index.ts` 复制过来，代码完全一样！
 
 ---
 

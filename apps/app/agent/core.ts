@@ -5,8 +5,8 @@
  * ============================================
  */
 import Anthropic from "@anthropic-ai/sdk";
-import { auth, model } from "../../../src/common/main";
-import { bash, Bash } from "../../../src/common/tools/fs";
+import { auth, model } from "@agent-dev/learn-claude-code/common/main";
+import { bash, Bash } from "@agent-dev/learn-claude-code/common/tools/fs";
 
 export const AUTH = auth();
 export const MODEL = model();

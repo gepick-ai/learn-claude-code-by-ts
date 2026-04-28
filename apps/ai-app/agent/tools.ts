@@ -5,7 +5,7 @@ import {
   editFile as runEditFile,
   readFile as runReadFile,
   writeFile as runWriteFile,
-} from "../../../src/common/tools/fs";
+} from "@agent-dev/learn-claude-code/common/tools/fs";
 
 export const agentTools = {
   bash: tool({

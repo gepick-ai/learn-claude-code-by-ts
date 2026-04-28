@@ -1,0 +1,29 @@
+{
+  "name": "@agent-dev/learn-claude-code",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./common/tools/fs": "./src/common/tools/fs.ts",
+    "./common/main": "./src/common/main.ts"
+  },
+  "scripts": {
+    "s01": "bun run src/tools-execution/agent-loop/index.ts",
+    "s02": "bun run src/tools-execution/tools/index.ts",
+    "s03": "bun run src/planning-coordination/todo-write/index.ts",
+    "s04": "bun run src/planning-coordination/subagent/index.ts",
+    "s05": "bun run src/planning-coordination/skills/index.ts",
+    "s06": "bun run src/memory-management/compact/index.ts",
+    "s07": "bun run src/planning-coordination/tasks/index.ts",
+    "s08": "bun run src/concurrency/background-tasks/index.ts",
+    "s09": "bun run src/collaboration/agent-team/index.ts",
+    "s10": "bun run src/collaboration/team-protocols/index.ts",
+    "s11": "bun run src/collaboration/autonomous-agents/index.ts",
+    "s12": "bun run src/collaboration/worktree-isolation/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  }
+}
