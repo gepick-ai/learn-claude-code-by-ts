@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@gepick/sdk": "workspace:*",
-    "@gepick/ui": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "clsx": "catalog:",
