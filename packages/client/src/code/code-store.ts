@@ -1,7 +1,11 @@
 import { create } from "zustand"
 import type { SessionMessage } from "@gepick/sdk"
 import { buildFallbackCodeViewModelFromMessages } from "./build-code-view-model"
-import { fetchWorkspacePreviewHtml } from "./fetch-project-preview"
+import {
+  buildWorkspacePreviewEntryUrl,
+  fetchWorkspacePreviewHtml,
+  previewGatewayReachable,
+} from "./workspace-preview"
 
 /** 开启后：工作区无入口文件时回退从聊天正文抽 HTML（开发调试用，易与磁盘不一致）。 */
 const CODE_PREVIEW_CHAT_FALLBACK =
@@ -13,6 +17,8 @@ export type PreviewSourceLabel = "workspace" | "chat-fallback" | null
 
 type CodeState = {
   generatedHtmlBySession: Record<string, string>
+  /** Code v3：存在时 iframe 使用 `src` 指向预览网关；与 `generatedHtmlBySession` 互斥展示。 */
+  previewEntryUrlBySession: Record<string, string | undefined>
   codePanelStatusBySession: Record<string, CodePanelStatus>
   codePanelErrorBySession: Record<string, string | undefined>
   previewSourceBySession: Record<string, PreviewSourceLabel>
@@ -29,6 +35,7 @@ const refreshTokens: Record<string, number> = {}
 
 export const useCodeStore = create<CodeState>()((set) => ({
   generatedHtmlBySession: {},
+  previewEntryUrlBySession: {},
   codePanelStatusBySession: {},
   codePanelErrorBySession: {},
   previewSourceBySession: {},
@@ -40,6 +47,7 @@ export const useCodeStore = create<CodeState>()((set) => ({
     if (!projectId) {
       set((st) => ({
         generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
+        previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
         codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "empty" },
         codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
         previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: null },
@@ -52,8 +60,20 @@ export const useCodeStore = create<CodeState>()((set) => ({
     if (refreshTokens[sessionId] !== token) return
 
     if (disk.ok) {
+      const bust = Date.now()
+      const previewUrl = buildWorkspacePreviewEntryUrl(projectId, bust)
+      const useGateway = await previewGatewayReachable(previewUrl)
+      if (refreshTokens[sessionId] !== token) return
+
       set((st) => ({
-        generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: disk.html },
+        generatedHtmlBySession: {
+          ...st.generatedHtmlBySession,
+          [sessionId]: useGateway ? "" : disk.html,
+        },
+        previewEntryUrlBySession: {
+          ...st.previewEntryUrlBySession,
+          [sessionId]: useGateway ? previewUrl : undefined,
+        },
         codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "ready" },
         codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
         previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: "workspace" },
@@ -70,6 +90,7 @@ export const useCodeStore = create<CodeState>()((set) => ({
       if (vm.status === "ready") {
         set((st) => ({
           generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: vm.html },
+          previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
           codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "ready" },
           codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
           previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: "chat-fallback" },
@@ -79,6 +100,8 @@ export const useCodeStore = create<CodeState>()((set) => ({
       }
       if (vm.status === "error") {
         set((st) => ({
+          generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
+          previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
           codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "error" },
           codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: vm.error },
           previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: "chat-fallback" },
@@ -91,6 +114,7 @@ export const useCodeStore = create<CodeState>()((set) => ({
     if (disk.kind === "missing") {
       set((st) => ({
         generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
+        previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
         codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "empty" },
         codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
         previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: null },
@@ -100,10 +124,12 @@ export const useCodeStore = create<CodeState>()((set) => ({
     }
 
     set((st) => ({
+      generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
       codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "error" },
       codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: disk.message },
       previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: null },
       workspaceMissingBySession: { ...st.workspaceMissingBySession, [sessionId]: undefined },
+      previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
     }))
   },
 }))

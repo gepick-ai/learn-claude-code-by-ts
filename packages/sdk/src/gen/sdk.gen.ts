@@ -13,6 +13,8 @@ import type {
   ProjectListResponses,
   ProjectReadWorkspaceFileErrors,
   ProjectReadWorkspaceFileResponses,
+  ProjectReadWorkspacePreviewErrors,
+  ProjectReadWorkspacePreviewResponses,
   SessionCreateResponses,
   SessionDeleteErrors,
   SessionDeleteResponses,
@@ -120,6 +122,32 @@ export class Project extends HeyApiClient {
       unknown,
       ThrowOnError
     >({ url: "/project", ...options });
+  }
+
+  /**
+   * Read workspace file for preview
+   *
+   * Code v3: serve a file under the project workspace with correct Content-Type for browser preview (same path guards as fs_read). Use for iframe src and relative subresources.
+   */
+  public readWorkspacePreview<ThrowOnError extends boolean = false>(
+    parameters: {
+      projectId: string;
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [{ args: [{ in: "path", key: "projectId" }] }],
+    );
+    return (options?.client ?? this.client).get<
+      ProjectReadWorkspacePreviewResponses,
+      ProjectReadWorkspacePreviewErrors,
+      ThrowOnError
+    >({
+      url: "/project/{projectId}/preview/*",
+      ...options,
+      ...params,
+    });
   }
 
   /**

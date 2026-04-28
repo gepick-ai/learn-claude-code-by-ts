@@ -65,6 +65,56 @@ projectController
       return c.json(projects)
     },
   )
+  .get("/:projectId/preview/*",
+    describeRoute({
+      summary: "Read workspace file for preview",
+      description:
+        "Code v3: serve a file under the project workspace with correct Content-Type for browser preview (same path guards as fs_read). Use for iframe src and relative subresources.",
+      operationId: "project.readWorkspacePreview",
+      responses: {
+        200: {
+          description: "File bytes",
+          content: {
+            "application/octet-stream": {
+              schema: resolver(z.instanceof(Uint8Array)),
+            },
+          },
+        },
+        ...errors(400, 404),
+      },
+    }),
+    validator("param", z.object({ projectId: z.string() })),
+    async (c) => {
+      const { projectId } = c.req.valid("param")
+      const pathname = new URL(c.req.url).pathname
+      const prefix = `/project/${projectId}/preview`
+      if (!pathname.startsWith(prefix)) {
+        return c.notFound()
+      }
+      const rest = pathname.slice(prefix.length).replace(/^\/+/u, "")
+      try {
+        const { body, contentType } = await projectService.readWorkspacePreviewFile(projectId, rest)
+        return c.body(new Uint8Array(body), 200, {
+          "Content-Type": contentType,
+          "Cache-Control": "private, no-store",
+        })
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          return c.json(e.toObject(), 404)
+        }
+        if (
+          e instanceof Error &&
+          (/Path escapes project workspace/.test(e.message) ||
+            /Absolute paths are not allowed/.test(e.message) ||
+            /Invalid URL encoding/.test(e.message) ||
+            /Invalid path segment/.test(e.message))
+        ) {
+          return c.json({ error: e.message }, 400)
+        }
+        throw e
+      }
+    },
+  )
   .get("/:projectId/workspace/file",
     describeRoute({
       summary: "Read workspace file",

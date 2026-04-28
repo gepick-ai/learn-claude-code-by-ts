@@ -20,6 +20,9 @@ export function CodePanel() {
   })
 
   const refreshPreview = useCodeStore((s) => s.refreshPreview)
+  const previewEntryUrl = useCodeStore((s) =>
+    currentSessionId ? s.previewEntryUrlBySession[currentSessionId] : undefined,
+  )
   const html = useCodeStore((s) => (currentSessionId ? s.generatedHtmlBySession[currentSessionId] ?? "" : ""))
   const status = useCodeStore((s) =>
     currentSessionId ? (s.codePanelStatusBySession[currentSessionId] ?? "empty") : "empty",
@@ -46,7 +49,11 @@ export function CodePanel() {
     return () => window.clearTimeout(id)
   }, [currentSessionId, projectId, messages, refreshPreview, scopeKey])
 
-  const frameKey = useMemo(() => `${currentSessionId ?? "none"}:${html.length}`, [currentSessionId, html])
+  const frameKey = useMemo(
+    () =>
+      `${currentSessionId ?? "none"}:${previewEntryUrl ?? ""}:${previewEntryUrl ? "" : html.length}`,
+    [currentSessionId, html, previewEntryUrl],
+  )
 
   const emptyHint = workspaceMissing
     ? "工作区暂无 index.html。请让助手在项目目录中创建该文件后，预览会自动更新。"
@@ -55,7 +62,7 @@ export function CodePanel() {
   return (
     <aside
       className={cn(
-        "flex h-full w-full min-h-0 min-w-0 flex-col border-r border-slate-200 bg-white",
+        "flex min-h-0 min-w-0 w-full flex-1 flex-col border-r border-slate-200 bg-white",
         "text-sm text-slate-600",
       )}
       aria-label="代码业务区域"
@@ -66,23 +73,32 @@ export function CodePanel() {
         </div>
       ) : null}
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
-        {status === "ready" ? (
+      <div className="relative min-h-0 min-w-0 flex-1 basis-0 overflow-hidden">
+        {status === "ready" && previewEntryUrl ? (
           <iframe
             key={frameKey}
-            className="h-full w-full border-0"
+            className="absolute inset-0 box-border h-full w-full max-h-full max-w-full border-0"
+            src={previewEntryUrl}
+            sandbox="allow-scripts allow-forms allow-modals allow-same-origin"
+            title="代码运行区"
+          />
+        ) : null}
+        {status === "ready" && !previewEntryUrl ? (
+          <iframe
+            key={frameKey}
+            className="absolute inset-0 box-border h-full w-full max-h-full max-w-full border-0"
             srcDoc={html}
             sandbox="allow-scripts allow-forms allow-modals allow-same-origin"
             title="代码运行区"
           />
         ) : null}
         {status === "empty" ? (
-          <div className="flex h-full items-center justify-center px-6 text-center text-sm text-slate-500">
+          <div className="flex h-full min-h-0 items-center justify-center px-6 text-center text-sm text-slate-500">
             {emptyHint}
           </div>
         ) : null}
         {status === "error" ? (
-          <div className="flex h-full items-center justify-center px-6 text-center text-sm text-red-600">
+          <div className="flex h-full min-h-0 items-center justify-center px-6 text-center text-sm text-red-600">
             {error ?? "无法加载工作区预览，请稍后重试。"}
           </div>
         ) : null}

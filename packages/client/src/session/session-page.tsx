@@ -24,8 +24,8 @@ export function SessionPage() {
       )}
     >
       <ProjectPanel />
-      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,2fr)_minmax(0,1fr)] overflow-hidden">
-        <div className="min-h-0 min-w-0 overflow-hidden">
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,2fr)_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">
           <SessionSlotPanel />
         </div>
         <div className="flex min-h-0 min-w-0 flex-col overflow-hidden">

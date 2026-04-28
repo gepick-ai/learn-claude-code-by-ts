@@ -18,7 +18,7 @@ function collectAssistantText(message: SessionMessage): string {
 
 /**
  * **v1 / 降级路径**：仅从助手正文抽取 HTML，可能与磁盘工作区不一致。
- * 生产环境应以 `fetchWorkspacePreviewHtml` + `projectId` 为预览真相。
+ * 生产环境应以工作区 + `projectId` 为预览真相（v3 为受控预览 URL，v2 只读 API 用于存在性检测等）。
  */
 export function buildFallbackCodeViewModelFromMessages(messages: SessionMessage[]): CodeViewModel {
   for (let i = messages.length - 1; i >= 0; i -= 1) {

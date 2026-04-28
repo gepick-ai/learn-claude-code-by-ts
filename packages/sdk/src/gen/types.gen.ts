@@ -236,6 +236,40 @@ export type ProjectCreateResponses = {
 export type ProjectCreateResponse =
   ProjectCreateResponses[keyof ProjectCreateResponses];
 
+export type ProjectReadWorkspacePreviewData = {
+  body?: never;
+  path: {
+    projectId: string;
+  };
+  query?: never;
+  url: "/project/{projectId}/preview/*";
+};
+
+export type ProjectReadWorkspacePreviewErrors = {
+  /**
+   * Bad request
+   */
+  400: {
+    error: string;
+  };
+  /**
+   * Not found
+   */
+  404: {
+    error: string;
+  };
+};
+
+export type ProjectReadWorkspacePreviewError =
+  ProjectReadWorkspacePreviewErrors[keyof ProjectReadWorkspacePreviewErrors];
+
+export type ProjectReadWorkspacePreviewResponses = {
+  /**
+   * File bytes
+   */
+  200: unknown;
+};
+
 export type ProjectReadWorkspaceFileData = {
   body?: never;
   path: {
