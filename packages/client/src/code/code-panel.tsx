@@ -31,10 +31,6 @@ export function CodePanel() {
   const previewSource = useCodeStore((s) =>
     currentSessionId ? s.previewSourceBySession[currentSessionId] ?? null : null,
   )
-  const workspaceMissing = useCodeStore((s) =>
-    currentSessionId ? s.workspaceMissingBySession[currentSessionId] : undefined,
-  )
-
   const scopeKey = `${currentSessionId ?? ""}:${projectId ?? ""}`
   const prevScopeKeyRef = useRef("")
 
@@ -55,9 +51,7 @@ export function CodePanel() {
     [currentSessionId, html, previewEntryUrl],
   )
 
-  const emptyHint = workspaceMissing
-    ? "工作区暂无 index.html。请让助手在项目目录中创建该文件后，预览会自动更新。"
-    : "发送需求后，助手在工作区生成的页面会在这里运行（预览以磁盘 index.html 为准）。"
+  const emptyHint = "发送需求后，助手在工作区生成的页面会在这里运行。"
 
   return (
     <aside

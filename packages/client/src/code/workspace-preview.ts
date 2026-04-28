@@ -7,6 +7,30 @@ export type WorkspacePreviewFetchResult =
   | { ok: true; html: string }
   | { ok: false; kind: "missing" | "failed"; message: string }
 
+function parseErrorLike(input: unknown): { status?: number; message: string } {
+  if (input instanceof Error) {
+    return { message: input.message || "unknown error" }
+  }
+  if (input && typeof input === "object") {
+    const rec = input as Record<string, unknown>
+    const statusRaw = rec.status
+    const status =
+      typeof statusRaw === "number"
+        ? statusRaw
+        : typeof statusRaw === "string" && /^\d+$/.test(statusRaw)
+          ? Number(statusRaw)
+          : undefined
+    const messageCandidates = [rec.message, rec.error, rec.detail]
+    for (const candidate of messageCandidates) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        return { status, message: candidate.trim() }
+      }
+    }
+    return { status, message: JSON.stringify(input) }
+  }
+  return { message: String(input) }
+}
+
 /**
  * Code v3：iframe 使用的受控预览 URL（与 `/project/:id/preview/*` 一致）。
  * **始终使用当前站点相对路径**（开发环境走 Vite `server.proxy` 与 `@gepick/app` 同源），
@@ -54,8 +78,9 @@ export async function fetchWorkspacePreviewHtml(projectId: string): Promise<Work
     }
     return { ok: true, html }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
-    if (/404|not\s*found|file\s*not\s*found/i.test(msg)) {
+    const parsed = parseErrorLike(e)
+    const msg = parsed.message
+    if (parsed.status === 404 || /404|not\s*found|file\s*not\s*found/i.test(msg)) {
       return {
         ok: false,
         kind: "missing",
