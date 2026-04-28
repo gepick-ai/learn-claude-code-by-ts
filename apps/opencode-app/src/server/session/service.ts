@@ -7,6 +7,7 @@ import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai"
 import { SessionTable } from "./sql"
 import { Database, eq } from "../../storage/db"
 import { Bus } from "../../util/bus"
+import { formatChinaDateTimeToSeconds } from "../../util/format-china-datetime"
 
 export const PartInput = z.discriminatedUnion("type", [
   TextPart.omit({
@@ -52,11 +53,12 @@ export type CreateAssistantMessageInput = z.infer<typeof CreateAssistantMessageI
 
 class SessionService {
   async createSession() {
+    const now = Date.now()
     const session: Session = {
       id: Identifier.descending("session"),
-      title: "Untitled Session",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      title: formatChinaDateTimeToSeconds(now),
+      createdAt: now,
+      updatedAt: now,
     }
 
     await sessionModel.createSession(session)
