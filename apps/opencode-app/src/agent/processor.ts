@@ -1,7 +1,7 @@
 import { LLM, type StreamInput } from "./llm"
 import type { AssistantMessage, ReasoningPart, TextPart, ToolPart } from "../server/session/model"
 import { Identifier } from "../util/id"
-import { partModel } from "../server/session/dao"
+import { messageModel, partModel } from "../server/session/dao"
 
 const RETRY_LIMIT = 2
 
@@ -198,7 +198,6 @@ export namespace Processor {
                   break
               }
             }
-
           } catch (err) {
             attempt += 1
             if (attempt > RETRY_LIMIT) {
@@ -208,6 +207,27 @@ export namespace Processor {
             }
           }
 
+          const parts = await partModel.getParts(input.assistantMessage.id)
+          for(let part of parts) {
+            if (part.type === "tool") {
+              if(part.state.status !== "completed" && part.state.status !== "error") {
+                part = {
+                  ...part,
+                  state: {
+                    ...part.state,
+                    status: "error",
+                    error: "Tool execution aborted"
+                  }
+                }
+
+                await partModel.updatePart(part)
+              }
+
+            }
+          }
+          
+          await messageModel.updateMessage(input.assistantMessage);
+          
           if (input.assistantMessage.error) return "stop"
           if (blocked) return "stop"
           return "continue"

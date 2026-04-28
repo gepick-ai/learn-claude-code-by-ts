@@ -25,7 +25,7 @@ class SessionModel {
 
     async getSession(sessionId: string) {
         const row = Database.use((db) => db.select().from(SessionTable).where(eq(SessionTable.id, sessionId)).get())
-        
+
         if (!row) throw new NotFoundError({ message: `Session not found: ${sessionId}` })
 
         return row
@@ -127,6 +127,19 @@ class PartModel {
 
 
         return part
+    }
+
+    async getParts(messageId: string):Promise<Part[]> {
+        const rows = Database.use((db) =>
+            db.select().from(PartTable).where(eq(PartTable.message_id, messageId)).orderBy(PartTable.id).all(),
+        )
+
+        return rows.map((row) => ({
+            ...row.data,
+            id: row.id,
+            sessionId: row.session_id,
+            messageId: row.message_id,
+        }) as Part)
     }
 }
 
