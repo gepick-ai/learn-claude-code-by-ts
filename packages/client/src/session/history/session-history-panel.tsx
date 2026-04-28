@@ -33,7 +33,7 @@ export function SessionHistoryPanel() {
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-[280px] shrink-0 flex-col border-l border-slate-200 bg-white",
+        "flex h-full min-h-0 w-[240px] shrink-0 flex-col border-l border-slate-200 bg-white",
         "shadow-sm shadow-slate-200/50",
       )}
       aria-label="会话历史"

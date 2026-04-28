@@ -16,7 +16,7 @@ export function ProjectPanel() {
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-[260px] shrink-0 flex-col border-r border-slate-200 bg-white",
+        "flex h-full min-h-0 w-[220px] shrink-0 flex-col border-r border-slate-200 bg-white",
         "shadow-sm shadow-slate-200/50",
       )}
       aria-label="项目列表"

@@ -31,22 +31,13 @@ export function SessionChatPanel() {
 
   return (
     <div
-      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-slate-50/80"
+      className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden bg-slate-50/80"
       aria-label="当前会话"
     >
-      <header className="shrink-0 border-b border-slate-200 bg-white px-4 py-3">
-        <h1 className="text-sm font-medium text-slate-800">对话</h1>
-        {currentSessionId && (
-          <p className="mt-0.5 truncate font-mono text-xs text-slate-500" title={currentSessionId}>
-            {currentSessionId}
-          </p>
-        )}
-      </header>
-
       <div
         ref={scrollRef}
         className={cn(
-          "min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-2 py-4",
+          "min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain px-2 py-4",
           "scroll-smooth [scrollbar-gutter:stable]",
         )}
       >

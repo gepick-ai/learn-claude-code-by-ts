@@ -13,7 +13,7 @@ function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["ro
       return <MarkdownMessageBody content={unwrapToolcallDisplayText(part.text)} variant="default" />
     }
     return (
-      <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-800">{part.text}</p>
+      <p className="whitespace-pre-wrap wrap-break-word text-sm leading-relaxed text-slate-800">{part.text}</p>
     )
   }
   if (part.type === "reasoning") {
@@ -61,10 +61,10 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
         </div>
         <div
           className={cn(
-            "min-w-0 flex-1 rounded-2xl px-4 py-2.5 shadow-sm",
+            "min-w-0 flex-1 rounded-2xl px-4 py-2.5",
             isUser
-              ? "rounded-tr-sm border border-indigo-200/90 bg-indigo-50/90"
-              : "rounded-tl-sm border border-slate-200 bg-white",
+              ? "rounded-tr-sm border border-indigo-200/90 bg-indigo-50/90 shadow-sm"
+              : "rounded-tl-sm border-transparent bg-slate-50/80 shadow-none",
           )}
         >
           {message.role === "assistant" && message.error && (
