@@ -8,13 +8,52 @@
 @import "./base.css" layer(base);
 
 /* components layer */
+@import "../components/accordion/accordion.css" layer(components);
+@import "../components/animated-number/animated-number.css" layer(components);
+@import "../components/avatar/avatar.css" layer(components);
+@import "../components/basic-tool/basic-tool.css" layer(components);
 @import "../components/button/button.css" layer(components);
+@import "../components/card/card.css" layer(components);
 @import "../components/checkbox/checkbox.css" layer(components);
+@import "../components/collapsible/collapsible.css" layer(components);
+@import "../components/context-menu/context-menu.css" layer(components);
+@import "../components/dialog/dialog.css" layer(components);
+@import "../components/dock-prompt/dock-prompt.css" layer(components);
+@import "../components/dock-surface/dock-surface.css" layer(components);
+@import "../components/dropdown-menu/dropdown-menu.css" layer(components);
+@import "../components/file-icon/file-icon.css" layer(components);
+@import "../components/file-search/file-search.css" layer(components);
+@import "../components/hover-card/hover-card.css" layer(components);
 @import "../components/icon/icon.css" layer(components);
+@import "../components/icon-button/icon-button.css" layer(components);
+@import "../components/inline-input/inline-input.css" layer(components);
+@import "../components/keybind/keybind.css" layer(components);
+@import "../components/list/list.css" layer(components);
+@import "../components/logo/logo.css" layer(components);
+@import "../components/markdown/markdown.css" layer(components);
+@import "../components/progress/progress.css" layer(components);
+@import "../components/progress-circle/progress-circle.css" layer(components);
+@import "../components/provider-icon/provider-icon.css" layer(components);
+@import "../components/radio-group/radio-group.css" layer(components);
+@import "../components/resize-handle/resize-handle.css" layer(components);
+@import "../components/scroll-view/scroll-view.css" layer(components);
+@import "../components/select/select.css" layer(components);
+@import "../components/spinner/spinner.css" layer(components);
+@import "../components/sticky-accordion-header/sticky-accordion-header.css" layer(components);
 @import "../components/switch/switch.css" layer(components);
 @import "../components/tag/tag.css" layer(components);
+@import "../components/tabs/tabs.css" layer(components);
+@import "../components/text-reveal/text-reveal.css" layer(components);
+@import "../components/text-strikethrough/text-strikethrough.css" layer(components);
+@import "../components/text-field/text-field.css" layer(components);
+@import "../components/text-shimmer/text-shimmer.css" layer(components);
+@import "../components/tool-status-title/tool-status-title.css" layer(components);
+@import "../components/tool-count-label/tool-count-label.css" layer(components);
+@import "../components/tool-count-summary/tool-count-summary.css" layer(components);
+@import "../components/tool-error-card/tool-error-card.css" layer(components);
 @import "../components/toast/toast.css" layer(components);
 @import "../components/tooltip/tooltip.css" layer(components);
+@import "../components/typewriter/typewriter.css" layer(components);
 
 
 /* utilities layer */

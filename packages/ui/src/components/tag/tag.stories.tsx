@@ -22,7 +22,9 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "Components/Tag",
+  title: "UI/Display/Tag",
+  id: "components-tag",
+  tags: ["autodocs"],
   component: Tag,
   parameters: {
     layout: "centered",

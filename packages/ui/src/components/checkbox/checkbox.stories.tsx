@@ -24,7 +24,9 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "Components/Checkbox",
+  title: "UI/Form/Checkbox",
+  id: "components-checkbox",
+  tags: ["autodocs"],
   component: Checkbox,
   parameters: {
     layout: "centered",

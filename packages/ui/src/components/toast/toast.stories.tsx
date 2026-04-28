@@ -22,8 +22,11 @@ Toast 通知，支持图标、动作按钮和异步状态。
 - 通过 \`data-component="toast"\` 和 slot 命名消费语义变量。
 `
 
-const meta: Meta = {
-  title: "Components/Toast",
+const meta: Meta<typeof mod.Toast> = {
+  title: "UI/Feedback/Toast",
+  id: "components-toast",
+  component: mod.Toast,
+  tags: ["autodocs"],
   parameters: {
     docs: {
       description: {

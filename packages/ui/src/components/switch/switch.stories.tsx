@@ -23,7 +23,9 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "Components/Switch",
+  title: "UI/Form/Switch",
+  id: "components-switch",
+  tags: ["autodocs"],
   component: Switch,
   parameters: {
     layout: "centered",

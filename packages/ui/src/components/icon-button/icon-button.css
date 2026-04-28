@@ -1,0 +1,86 @@
+[data-component="icon-button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  user-select: none;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  border: none;
+
+  &[data-variant="primary"] {
+    background-color: var(--icon-strong-base);
+
+    [data-slot="icon-svg"] {
+      color: var(--icon-invert-base);
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--icon-strong-hover);
+    }
+    &:focus:not(:disabled) {
+      background-color: var(--icon-strong-focus);
+    }
+    &:active:not(:disabled) {
+      background-color: var(--icon-strong-active);
+    }
+    &:disabled {
+      background-color: var(--icon-strong-disabled);
+    }
+  }
+
+  &[data-variant="secondary"] {
+    background-color: var(--button-secondary-base);
+    box-shadow: var(--shadow-xs-border-base);
+
+    &:hover:not(:disabled) {
+      background-color: var(--button-secondary-hover);
+    }
+    &:focus-visible:not(:active) {
+      box-shadow: var(--shadow-xs-border-focus);
+    }
+
+    [data-slot="icon-svg"] {
+      color: var(--icon-strong-base);
+    }
+  }
+
+  &[data-variant="ghost"] {
+    background-color: transparent;
+
+    [data-slot="icon-svg"] {
+      color: var(--icon-base);
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--surface-base-hover);
+    }
+    &:active:not(:disabled) {
+      background-color: var(--surface-base-active);
+    }
+  }
+
+  &[data-size="small"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  &[data-size="normal"] {
+    width: 24px;
+    height: 24px;
+  }
+
+  &[data-size="large"] {
+    width: 32px;
+    height: 32px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}

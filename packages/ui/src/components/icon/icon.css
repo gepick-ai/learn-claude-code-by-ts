@@ -2,31 +2,32 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  color: var(--icon-base);
 
   [data-slot="icon-svg"] {
-    color: var(--icon-base);
     width: 100%;
-    height: 100%;
-    stroke-width: 1.25;
+    height: auto;
   }
 
   &[data-size="small"] {
-    width: 12px;
-    height: 12px;
-  }
-
-  &[data-size="normal"] {
     width: 16px;
     height: 16px;
   }
 
+  &[data-size="normal"] {
+    width: 20px;
+    height: 20px;
+  }
+
   &[data-size="medium"] {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
 
   &[data-size="large"] {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 }

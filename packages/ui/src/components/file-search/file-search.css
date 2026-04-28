@@ -1,0 +1,72 @@
+[data-component="file-search"] {
+  position: fixed;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-base);
+  background: var(--background-base);
+  box-shadow: var(--shadow-md);
+}
+
+[data-component="file-search"] [data-slot="file-search-icon"] {
+  color: var(--text-weak);
+  flex-shrink: 0;
+}
+
+[data-component="file-search"] [data-slot="file-search-input"] {
+  width: 160px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-strong);
+  font-size: var(--font-size-base);
+}
+
+[data-component="file-search"] [data-slot="file-search-input"]::placeholder {
+  color: var(--text-weak);
+}
+
+[data-component="file-search"] [data-slot="file-search-count"] {
+  width: 10ch;
+  flex-shrink: 0;
+  text-align: right;
+  color: var(--text-weak);
+  font-size: var(--font-size-small);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-component="file-search"] [data-slot="file-search-nav"] {
+  display: inline-flex;
+  align-items: center;
+}
+
+[data-component="file-search"] [data-slot="file-search-nav-btn"],
+[data-component="file-search"] [data-slot="file-search-close"] {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-weak);
+  background: transparent;
+}
+
+[data-component="file-search"] [data-slot="file-search-nav-btn"]:hover:not(:disabled),
+[data-component="file-search"] [data-slot="file-search-close"]:hover {
+  background: var(--surface-base-hover);
+  color: var(--text-strong);
+}
+
+[data-component="file-search"] [data-slot="file-search-nav-btn"]:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+[data-component="file-search"] [data-slot="file-search-up"] {
+  transform: rotate(180deg);
+}

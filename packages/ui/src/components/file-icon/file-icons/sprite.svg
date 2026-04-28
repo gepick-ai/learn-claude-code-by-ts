@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="Document" viewBox="0 0 16 16">
+    <rect x="3" y="2" width="10" height="12" rx="2" fill="currentColor" />
+  </symbol>
+  <symbol id="Folder" viewBox="0 0 16 16">
+    <path d="M1 4h5l1 2h8v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4z" fill="currentColor" />
+  </symbol>
+  <symbol id="FolderOpen" viewBox="0 0 16 16">
+    <path d="M1 5h14l-2 7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5z" fill="currentColor" />
+  </symbol>
+  <symbol id="Readme" viewBox="0 0 16 16"><rect x="3" y="2" width="10" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Nodejs" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Tsconfig" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Typescript" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Css" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Svg" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Image" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Docker" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="Tune" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor" /></symbol>
+  <symbol id="FolderSrc" viewBox="0 0 16 16"><path d="M1 4h5l1 2h8v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4z" fill="currentColor" /></symbol>
+  <symbol id="FolderPublic" viewBox="0 0 16 16"><path d="M1 4h5l1 2h8v7a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4z" fill="currentColor" /></symbol>
+</svg>

@@ -30,7 +30,9 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "Components/Button",
+  title: "UI/Form/Button",
+  id: "components-button",
+  tags: ["autodocs"],
   component: Button,
   parameters: {
     layout: "centered",

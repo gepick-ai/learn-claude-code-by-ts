@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="openai" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="currentColor" />
+    <circle cx="12" cy="12" r="5" fill="none" stroke="white" stroke-width="2" />
+  </symbol>
+  <symbol id="anthropic" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor" />
+    <path d="M8 16L12 8L16 16M9.5 13H14.5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" />
+  </symbol>
+  <symbol id="google" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3" />
+    <path d="M22 12H12" stroke="currentColor" stroke-width="3" />
+  </symbol>
+  <symbol id="opencode" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" />
+    <rect x="8" y="8" width="8" height="8" fill="white" opacity="0.5" />
+  </symbol>
+  <symbol id="synthetic" viewBox="0 0 24 24">
+    <path d="M12 2L21 7V17L12 22L3 17V7L12 2Z" fill="currentColor" />
+    <circle cx="12" cy="12" r="3.5" fill="white" />
+  </symbol>
+</svg>

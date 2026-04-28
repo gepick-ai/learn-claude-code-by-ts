@@ -1,0 +1,15 @@
+[data-component="text-strikethrough"] {
+  display: grid;
+}
+
+[data-slot="text-strikethrough-line"] {
+  text-decoration-line: line-through;
+  text-decoration-thickness: from-font;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="text-strikethrough-line"] {
+    clip-path: none !important;
+  }
+}

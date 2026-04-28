@@ -25,7 +25,9 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "Components/Icon",
+  title: "UI/Display/Icon",
+  id: "components-icon",
+  tags: ["autodocs"],
   component: Icon,
   parameters: {
     layout: "centered",
