@@ -81,8 +81,12 @@ export namespace Processor {
                     sessionId: input.assistantMessage.sessionId,
                     messageId: input.assistantMessage.id,
                     type: "tool",
-                    tool: evt.toolName,
                     callId: evt.id,
+                    tool: evt.toolName,
+                    state: {
+                      status: "pending",
+                      input: {},
+                    }
                   }
                   
                   await partModel.updatePart(toolPart)
@@ -98,6 +102,10 @@ export namespace Processor {
                     toolPart = {
                       ...toolPart,
                       tool: evt.toolName,
+                      state: {
+                        status: "running",
+                        input: evt.input
+                      }
                     }
                     await partModel.updatePart(toolPart)
                     toolPartMap.set(evt.toolCallId, toolPart)
@@ -107,9 +115,14 @@ export namespace Processor {
                 }
                 case "tool-result": {
                   let toolPart = toolPartMap.get(evt.toolCallId);
-                  if(toolPart) {
+                  if(toolPart && toolPart.state.status === "running") {
                     toolPart = {
                       ...toolPart,
+                      state: {
+                        status: "completed",
+                        input: evt.input ?? toolPart.state.input,
+                        output: evt.output.output
+                      }
                     }
                     await partModel.updatePart(toolPart)
                     toolPartMap.delete(evt.toolCallId)
@@ -118,7 +131,15 @@ export namespace Processor {
                 }
                 case "tool-error": {
                   let toolPart = toolPartMap.get(evt.toolCallId);
-                  if(toolPart) {
+                  if(toolPart && toolPart.state.status === "running") {
+                    toolPart = {
+                      ...toolPart,
+                      state: {
+                        status: "error",
+                        input: evt.input?? toolPart.state.input,
+                        error: (evt.error as any).toString()
+                      }
+                    }
                     await partModel.updatePart(toolPart)
                     toolPartMap.delete(evt.toolCallId)
                   }
