@@ -54,7 +54,7 @@
 
 ## 4. 实施方案（Fix）
 
-在 `apps/opencode-client/src/session/store/sessionStore.ts` 中：
+在 `apps/opencode-client/src/session/session-store.ts` 中：
 
 - 增加模块级变量 `hydrateInFlight: Promise<void> | null`。
 - `hydrate` 内：若 `get().hydrated` 已为 `true` 则直接 return；若 `hydrateInFlight` 存在则 **return 该 Promise**；否则创建新的 async IIFE 赋值给 `hydrateInFlight`，在 `finally` 中置回 `null`。
@@ -72,7 +72,7 @@
 
 ## 6. 参考（References）
 
-- 同仓库防 StrictMode 重复连接的前例：`src/session/sse/sessionSseClient.ts`（`useSessionSse` 配套说明）。
+- 同仓库防 StrictMode 重复连接的前例：`src/session/chat/sse/session-sse-client.ts`（`useSessionSse` 配套说明）。
 - React `StrictMode` 与双次 `useEffect` 行为：以当前项目使用的 React 18 官方文档为准。
 
 ---
@@ -81,7 +81,7 @@
 
 | 文件 | 说明 |
 |------|------|
-| `src/session/store/sessionStore.ts` | 为 `hydrate` 增加 `hydrateInFlight` 单飞逻辑 |
+| `src/session/session-store.ts` | 为 `hydrate` 增加 `hydrateInFlight` 单飞逻辑 |
 
 ---
 

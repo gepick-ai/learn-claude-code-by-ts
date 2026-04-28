@@ -1,4 +1,4 @@
-import type { SessionMessage } from "../types"
+import type { SessionMessage } from "@agent-dev/opencode-sdk"
 
 /**
  * 是否已有**可见**的助手流式内容（含 reasoning / tool，不含 ignored/synthetic 的空壳 text）。

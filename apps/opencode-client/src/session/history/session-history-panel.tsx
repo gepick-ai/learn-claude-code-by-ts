@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { Loader2, Plus } from "lucide-react"
-import { useSessionStore } from "../store/session-store"
+import { useSessionStore } from "../session-store"
 import { DeleteSessionConfirmDialog } from "./delete-session-confirm-dialog"
 import { SessionListItem } from "./session-list-item"
 import { cn } from "@/util/cn"

@@ -1,6 +1,5 @@
-import { SessionChatPanel } from "./chat"
+import { SessionChatPanel, useSessionSse } from "./chat"
 import { SessionHistoryPanel } from "./history"
-import { useSessionSse } from "./sse/use-session-sse"
 import { cn } from "@/util/cn"
 
 /**

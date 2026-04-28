@@ -1,4 +1,4 @@
-import type { Part, SessionMessage } from "../types"
+import type { Part, SessionMessage } from "@agent-dev/opencode-sdk"
 
 const OPT = "client-optimistic-user:"
 

@@ -1,6 +1,6 @@
 import { Bot, Loader2, User, Wrench } from "lucide-react"
 import { cn } from "@/util/cn"
-import type { Message, Part, SessionMessage } from "../types"
+import type { Message, Part, SessionMessage } from "@agent-dev/opencode-sdk"
 import { MarkdownMessageBody } from "./markdown-message-body"
 
 function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["role"] }) {

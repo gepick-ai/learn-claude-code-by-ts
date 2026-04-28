@@ -1,5 +1,10 @@
+import type { Session, SessionMessage } from "@agent-dev/opencode-sdk"
 import { sdk } from "@/util/sdk"
-import type { CreateSessionResponse, SessionMessage, SessionMeta } from "./types"
+
+export type CreateSessionResponse = {
+  sessionId: string
+  session: Session
+}
 
 /** SDK `responseStyle: "data"` 会直接返回解析后的 JSON；仅部分接口为 `{ data, error }` 包装。 */
 function data<T>(input: T | { data?: T; error?: unknown }, msg: string): T {
@@ -35,7 +40,7 @@ function mapSessionMeta(input: { id: string; title?: string; name?: string; crea
           ? Date.parse(input.createdAt) || 0
           : 0,
     updatedAt: typeof input.updatedAt === "number" ? input.updatedAt : 0,
-  } satisfies SessionMeta
+  } satisfies Session
 }
 
 export async function createSession(): Promise<CreateSessionResponse> {
@@ -47,7 +52,7 @@ export async function createSession(): Promise<CreateSessionResponse> {
 }
 
 /** 与会话资源 `GET /session` 对齐；服务端按最近更新时间排序。 */
-export async function listSessions(options?: { limit?: number }): Promise<SessionMeta[]> {
+export async function listSessions(options?: { limit?: number }): Promise<Session[]> {
   const list = data(await sdk.session.list(options), "list sessions failed")
   return list.map((item) => mapSessionMeta(item))
 }

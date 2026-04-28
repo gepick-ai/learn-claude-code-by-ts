@@ -1,4 +1,4 @@
-import { SessionPage } from "@/session"
+import { SessionPage } from "@/session/session-page"
 
 export default function App() {
   return (
