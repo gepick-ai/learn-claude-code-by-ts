@@ -31,7 +31,7 @@ const samples = [
 ]
 
 const meta = {
-  title: "UI/AI/ToolErrorCard",
+  title: "AI/ToolErrorCard",
   id: "components-tool-error-card",
   component: ToolErrorCard,
   tags: ["autodocs"],

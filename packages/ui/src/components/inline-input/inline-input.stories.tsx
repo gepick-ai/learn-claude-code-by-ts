@@ -22,7 +22,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Form/InlineInput",
+  title: "Form/InlineInput",
   id: "components-inline-input",
   tags: ["autodocs"],
   component: InlineInput,

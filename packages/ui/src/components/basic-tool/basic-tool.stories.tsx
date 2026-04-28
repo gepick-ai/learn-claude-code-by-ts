@@ -3,7 +3,7 @@ import { useState } from "react"
 import { BasicTool } from "./basic-tool"
 
 const meta = {
-  title: "UI/AI/BasicTool",
+  title: "AI/BasicTool",
   id: "components-basic-tool",
   component: BasicTool,
   tags: ["autodocs"],

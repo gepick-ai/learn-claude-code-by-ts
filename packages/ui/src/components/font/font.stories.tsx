@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react"
 import { Font } from "./font"
 
 const meta = {
-  title: "UI/Display/Font",
+  title: "Display/Font",
   id: "components-font",
   component: Font,
   tags: ["autodocs"],

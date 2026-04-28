@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Feedback/Progress",
+  title: "Feedback/Progress",
   id: "components-progress",
   tags: ["autodocs"],
   component: Progress,

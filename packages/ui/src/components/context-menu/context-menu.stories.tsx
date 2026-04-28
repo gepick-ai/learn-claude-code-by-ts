@@ -29,7 +29,7 @@ const panel = {
 }
 
 const meta = {
-  title: "UI/Overlay/ContextMenu",
+  title: "Overlay/ContextMenu",
   id: "components-context-menu",
   tags: ["autodocs"],
   component: ContextMenu,

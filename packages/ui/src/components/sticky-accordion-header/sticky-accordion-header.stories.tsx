@@ -24,7 +24,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Display/StickyAccordionHeader",
+  title: "Display/StickyAccordionHeader",
   id: "components-sticky-accordion-header",
   component: StickyAccordionHeader,
   tags: ["autodocs"],

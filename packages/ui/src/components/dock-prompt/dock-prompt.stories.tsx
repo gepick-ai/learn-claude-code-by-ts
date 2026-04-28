@@ -22,7 +22,7 @@ Dock 场景下的提示布局组件，支持问题与权限两种结构。
 `
 
 const meta = {
-  title: "UI/Layout/DockPrompt",
+  title: "Layout/DockPrompt",
   id: "components-dock-prompt",
   tags: ["autodocs"],
   component: DockPrompt,

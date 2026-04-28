@@ -25,7 +25,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Layout/ResizeHandle",
+  title: "Layout/ResizeHandle",
   id: "components-resize-handle",
   component: ResizeHandle,
   tags: ["autodocs"],

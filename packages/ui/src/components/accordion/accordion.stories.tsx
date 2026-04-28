@@ -24,7 +24,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Display/Accordion",
+  title: "Display/Accordion",
   id: "components-accordion",
   component: Accordion,
   tags: ["autodocs"],

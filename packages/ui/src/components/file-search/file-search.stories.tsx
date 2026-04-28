@@ -3,7 +3,7 @@ import { useRef, useState } from "react"
 import { FileSearchBar } from "./file-search"
 
 const meta = {
-  title: "UI/AI/FileSearchBar",
+  title: "AI/FileSearchBar",
   id: "components-file-search",
   component: FileSearchBar,
   tags: ["autodocs"],

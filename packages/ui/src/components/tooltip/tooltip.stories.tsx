@@ -26,7 +26,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Overlay/Tooltip",
+  title: "Overlay/Tooltip",
   id: "components-tooltip",
   tags: ["autodocs"],
   component: Tooltip,

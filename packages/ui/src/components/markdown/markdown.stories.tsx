@@ -30,7 +30,7 @@ console.log(hello)
 `
 
 const meta = {
-  title: "UI/Display/Markdown",
+  title: "Display/Markdown",
   id: "components-markdown",
   component: Markdown,
   tags: ["autodocs"],

@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Overlay/DropdownMenu",
+  title: "Overlay/DropdownMenu",
   id: "components-dropdown-menu",
   tags: ["autodocs"],
   component: DropdownMenu,

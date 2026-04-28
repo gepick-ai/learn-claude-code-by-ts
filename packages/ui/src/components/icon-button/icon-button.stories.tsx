@@ -24,7 +24,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Form/IconButton",
+  title: "Form/IconButton",
   id: "components-icon-button",
   tags: ["autodocs"],
   component: IconButton,

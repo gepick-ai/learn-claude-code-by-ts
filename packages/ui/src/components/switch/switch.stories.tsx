@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Form/Switch",
+  title: "Form/Switch",
   id: "components-switch",
   tags: ["autodocs"],
   component: Switch,

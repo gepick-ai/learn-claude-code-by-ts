@@ -76,7 +76,7 @@ const headingSlot = {
 } as const
 
 const meta = {
-  title: "UI/AI/TextReveal",
+  title: "AI/TextReveal",
   id: "components-text-reveal",
   component: TextReveal,
   tags: ["autodocs"],

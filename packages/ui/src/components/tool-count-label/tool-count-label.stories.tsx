@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { AnimatedCountLabel } from "./tool-count-label"
 
 const meta = {
-  title: "UI/AI/ToolCountLabel",
+  title: "AI/ToolCountLabel",
   id: "components-tool-count-label",
   component: AnimatedCountLabel,
   tags: ["autodocs"],

@@ -16,7 +16,7 @@ const i18n = {
 }
 
 const meta = {
-  title: "UI/Form/TextField",
+  title: "Form/TextField",
   id: "components-text-field",
   component: TextField,
   tags: ["autodocs"],

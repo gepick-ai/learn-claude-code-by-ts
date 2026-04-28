@@ -11,7 +11,7 @@ Provider 图标渲染组件，基于 SVG sprite 按 id 输出图标。
 `
 
 const meta = {
-  title: "UI/Brand/ProviderIcon",
+  title: "Brand/ProviderIcon",
   id: "components-provider-icon",
   component: ProviderIcon,
   tags: ["autodocs"],

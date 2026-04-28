@@ -26,7 +26,7 @@ Use within panels or popovers where keyboard navigation is expected.
 `
 
 const meta = {
-  title: "UI/Display/List",
+  title: "Display/List",
   id: "components-list",
   component: List<string>,
   tags: ["autodocs"],

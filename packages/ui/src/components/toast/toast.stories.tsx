@@ -23,7 +23,7 @@ Toast 通知，支持图标、动作按钮和异步状态。
 `
 
 const meta: Meta<typeof mod.Toast> = {
-  title: "UI/Feedback/Toast",
+  title: "Feedback/Toast",
   id: "components-toast",
   component: mod.Toast,
   tags: ["autodocs"],

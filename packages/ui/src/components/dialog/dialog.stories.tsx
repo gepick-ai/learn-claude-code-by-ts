@@ -19,7 +19,7 @@ const i18n = {
 }
 
 const meta = {
-  title: "UI/Overlay/Dialog",
+  title: "Overlay/Dialog",
   id: "components-dialog",
   component: Dialog,
   tags: ["autodocs"],

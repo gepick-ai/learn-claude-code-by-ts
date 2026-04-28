@@ -24,7 +24,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Form/RadioGroup",
+  title: "Form/RadioGroup",
   id: "components-radio-group",
   tags: ["autodocs"],
   component: RadioGroup<string>,

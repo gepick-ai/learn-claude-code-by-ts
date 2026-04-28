@@ -23,7 +23,7 @@ Dock 表面容器，提供 shell/tray 两层结构。
 `
 
 const meta = {
-  title: "UI/Layout/DockSurface",
+  title: "Layout/DockSurface",
   id: "components-dock-surface",
   tags: ["autodocs"],
   component: DockShell,

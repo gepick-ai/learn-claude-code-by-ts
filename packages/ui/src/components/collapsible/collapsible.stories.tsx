@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Display/Collapsible",
+  title: "Display/Collapsible",
   id: "components-collapsible",
   tags: ["autodocs"],
   component: Collapsible,

@@ -27,7 +27,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Navigation/Tabs",
+  title: "Navigation/Tabs",
   id: "components-tabs",
   tags: ["autodocs"],
   component: Tabs,

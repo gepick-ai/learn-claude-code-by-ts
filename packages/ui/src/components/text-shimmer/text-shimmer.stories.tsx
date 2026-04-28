@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/AI/TextShimmer",
+  title: "AI/TextShimmer",
   id: "components-text-shimmer",
   component: TextShimmer,
   tags: ["autodocs"],

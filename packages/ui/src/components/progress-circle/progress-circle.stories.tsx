@@ -22,7 +22,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Feedback/ProgressCircle",
+  title: "Feedback/ProgressCircle",
   id: "components-progress-circle",
   tags: ["autodocs"],
   component: ProgressCircle,

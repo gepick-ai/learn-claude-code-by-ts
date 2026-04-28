@@ -13,7 +13,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/AI/Typewriter",
+  title: "AI/Typewriter",
   id: "components-typewriter",
   component: Typewriter,
   tags: ["autodocs"],

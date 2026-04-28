@@ -27,7 +27,7 @@ Use \`children\` to customize option rendering.
 `
 
 const meta = {
-  title: "UI/Form/Select",
+  title: "Form/Select",
   id: "components-select",
   component: Select<string>,
   tags: ["autodocs"],

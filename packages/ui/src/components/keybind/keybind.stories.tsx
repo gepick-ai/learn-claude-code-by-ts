@@ -22,7 +22,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Display/Keybind",
+  title: "Display/Keybind",
   id: "components-keybind",
   tags: ["autodocs"],
   component: Keybind,

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { ToolStatusTitle } from "./tool-status-title"
 
 const meta = {
-  title: "UI/AI/ToolStatusTitle",
+  title: "AI/ToolStatusTitle",
   id: "components-tool-status-title",
   component: ToolStatusTitle,
   tags: ["autodocs"],

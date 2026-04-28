@@ -21,7 +21,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Feedback/Spinner",
+  title: "Feedback/Spinner",
   id: "components-spinner",
   tags: ["autodocs"],
   component: Spinner,

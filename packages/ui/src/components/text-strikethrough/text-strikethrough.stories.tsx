@@ -52,7 +52,7 @@ const item = (active: boolean) => ({
 })
 
 const meta = {
-  title: "UI/AI/TextStrikethrough",
+  title: "AI/TextStrikethrough",
   id: "components-text-strikethrough",
   component: TextStrikethrough,
   tags: ["autodocs"],

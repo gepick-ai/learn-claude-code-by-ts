@@ -4,7 +4,7 @@ import { ToolStatusTitle } from "../tool-status-title"
 import { AnimatedCountList, type CountItem } from "./tool-count-summary"
 
 const meta = {
-  title: "UI/AI/ToolCountSummary",
+  title: "AI/ToolCountSummary",
   id: "components-tool-count-summary",
   component: AnimatedCountList,
   tags: ["autodocs"],

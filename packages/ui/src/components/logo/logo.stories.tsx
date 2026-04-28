@@ -21,7 +21,7 @@ Logo 资源组件，包含 Mark、Splash、Logo 三种形态。
 `
 
 const meta = {
-  title: "UI/Brand/Logo",
+  title: "Brand/Logo",
   id: "components-logo",
   tags: ["autodocs"],
   component: mod.Logo,

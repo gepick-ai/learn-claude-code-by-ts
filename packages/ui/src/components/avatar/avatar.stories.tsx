@@ -23,7 +23,7 @@ const docs = `### 概览
 `
 
 const meta = {
-  title: "UI/Display/Avatar",
+  title: "Display/Avatar",
   id: "components-avatar",
   tags: ["autodocs"],
   component: Avatar,

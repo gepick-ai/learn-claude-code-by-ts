@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { AnimatedNumber } from "./animated-number"
 
 const meta = {
-  title: "UI/AI/AnimatedNumber",
+  title: "AI/AnimatedNumber",
   id: "components-animated-number",
   component: AnimatedNumber,
   tags: ["autodocs"],

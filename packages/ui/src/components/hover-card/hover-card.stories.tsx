@@ -7,7 +7,7 @@ Hover-triggered card for lightweight previews and metadata.
 `
 
 const meta = {
-  title: "UI/Overlay/HoverCard",
+  title: "Overlay/HoverCard",
   id: "components-hover-card",
   component: HoverCard,
   tags: ["autodocs"],

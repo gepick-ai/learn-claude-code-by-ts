@@ -25,7 +25,7 @@ const docs = `### 概览
 type Variant = "normal" | "error" | "warning" | "success" | "info"
 
 const meta = {
-  title: "UI/Display/Card",
+  title: "Display/Card",
   id: "components-card",
   tags: ["autodocs"],
   component: Card,
