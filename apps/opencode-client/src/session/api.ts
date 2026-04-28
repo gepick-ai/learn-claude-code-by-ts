@@ -36,6 +36,34 @@ export async function getSession(sessionId: string): Promise<SessionMeta> {
   }
 }
 
+/** 删除成功返回 `ok`；服务端已无该会话时返回 `gone`（仍可清理本地列表）。 */
+export async function deleteSession(sessionId: string): Promise<"ok" | "gone"> {
+  const res = await fetch(apiUrl(`/session/${encodeURIComponent(sessionId)}`), { method: "DELETE" })
+  const raw = await readTextSafe(res)
+  if (res.ok) {
+    if (raw.trim()) {
+      try {
+        const data = JSON.parse(raw) as unknown
+        if (data === true) return "ok"
+      } catch {
+        /* 仍视为成功 */
+      }
+    }
+    return "ok"
+  }
+  if (res.status === 404) return "gone"
+  let err = `delete session failed: ${res.status}`
+  if (raw.trim()) {
+    try {
+      const j = JSON.parse(raw) as { error?: string }
+      if (typeof j?.error === "string") err = j.error
+    } catch {
+      /* 使用默认 err */
+    }
+  }
+  throw new Error(err)
+}
+
 export async function getMessages(sessionId: string): Promise<SessionMessage[]> {
   const res = await fetch(apiUrl(`/session/${encodeURIComponent(sessionId)}/message`))
   const raw = await readTextSafe(res)

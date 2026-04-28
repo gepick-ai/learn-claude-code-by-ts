@@ -1,4 +1,4 @@
-import { Database } from "../../storage/db"
+import { and, Database, SQL } from "../../storage/db"
 import { Session, type Message, type Part } from "./model"
 import { MessageTable, PartTable, SessionTable } from "./sql"
 import { eq, desc, inArray } from "../../storage/db"
@@ -24,12 +24,49 @@ class SessionModel {
         return session
     }
 
+    async *listSessions(query: {
+        limit?: number
+    }): AsyncIterable<Session> {
+        const conditions: SQL[] = []
+
+        const limit = query.limit ?? 100;
+
+        const rows = Database.use((db) => db
+            .select()
+            .from(SessionTable)
+            .where(and(...conditions))
+            .orderBy(desc(SessionTable.updated_at))
+            .limit(limit)
+            .all(),
+        )
+
+        for (const row of rows) {
+            yield {
+                id: row.id,
+                title: row.title,
+                createdAt: row.created_at,
+                updatedAt: row.updated_at,
+            } as Session
+        }
+    }
+
     async getSession(sessionId: string) {
         const row = Database.use((db) => db.select().from(SessionTable).where(eq(SessionTable.id, sessionId)).get())
 
         if (!row) throw new NotFoundError({ message: `Session not found: ${sessionId}` })
 
         return row
+    }
+
+    async deleteSession(sessionId: string) {
+        const session = await this.getSession(sessionId)
+
+        Database.use((db) => {
+            db.delete(SessionTable).where(eq(SessionTable.id, sessionId)).run()
+            Database.effect(() => {
+                Bus.publish({ type: "session.deleted", properties: { info: session } })
+            })
+        })
     }
 }
 
@@ -136,7 +173,7 @@ class PartModel {
         return part
     }
 
-    async getParts(messageId: string):Promise<Part[]> {
+    async getParts(messageId: string): Promise<Part[]> {
         const rows = Database.use((db) =>
             db.select().from(PartTable).where(eq(PartTable.message_id, messageId)).orderBy(PartTable.id).all(),
         )

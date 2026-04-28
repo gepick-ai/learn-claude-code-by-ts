@@ -4,6 +4,9 @@ import { Message, Session, SessionMessage, TextPart, ToolPart } from "./model"
 import { Identifier } from "../../util/id"
 import { messageModel, partModel, sessionModel } from "./dao"
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai"
+import { SessionTable } from "./sql"
+import { Database, eq } from "../../storage/db"
+import { Bus } from "../../util/bus"
 
 export const PartInput = z.discriminatedUnion("type", [
   TextPart.omit({
@@ -33,6 +36,10 @@ export const PromptInput = z.object({
   parts: z.array(PartInput),
 })
 
+export const ListSessionsInput = z.object({
+  limit: z.number().optional(),
+})
+
 export const GetMessagesInput = z.object({
   sessionId: z.string(),
   limit: z.number().optional(),
@@ -57,6 +64,16 @@ class SessionService {
     return session
   }
 
+  async listSessions(query: z.infer<typeof ListSessionsInput>): Promise<Session[]> {
+    const sessions = [] as Session[]
+
+    for await (const session of sessionModel.listSessions(query)) {
+      sessions.push(session)
+    }
+
+    return sessions
+  }
+
   async getSession(sessionId: string): Promise<Session> {
     const row = await sessionModel.getSession(sessionId);
 
@@ -67,27 +84,34 @@ class SessionService {
       updatedAt: row.updated_at,
     }
   }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    try {
+      await sessionModel.deleteSession(sessionId)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 }
 
 export const sessionService = new SessionService()
 
 class MessageService {
-
   async prompt(input: z.input<typeof PromptInput>) {
     const parsed = PromptInput.parse(input)
     await this.createUserSessionMessage(parsed)
     return loop({ sessionId: parsed.sessionId })
   }
 
-  async getMessages(input: z.infer<typeof GetMessagesInput>):Promise<SessionMessage[]> {
-    const result = [] as SessionMessage[]
+  async listMessages(input: z.infer<typeof GetMessagesInput>): Promise<SessionMessage[]> {
+    const messages = [] as SessionMessage[]
 
     for await (const msg of messageModel.getMessages(input.sessionId)) {
-      if (input.limit && result.length >= input.limit) break
-      result.push(msg)
+      if (input.limit && messages.length >= input.limit) break
+      messages.push(msg)
     }
-    result.reverse();
-    return result
+    messages.reverse();
+    return messages
   }
 
   /**
@@ -113,7 +137,7 @@ class MessageService {
       const { message, parts } = sessionMessage
 
       if (message.role === "user") {
-        const userMessage: UIMessage = { id: message.id, role: "user", parts: []}
+        const userMessage: UIMessage = { id: message.id, role: "user", parts: [] }
 
         for (const p of parts) {
           if (p.type === "text" && !p.ignored) {
@@ -121,7 +145,7 @@ class MessageService {
           }
         }
 
-        if(userMessage.parts.length > 0) {
+        if (userMessage.parts.length > 0) {
           uiMessages.push(userMessage)
         }
       }
@@ -130,13 +154,13 @@ class MessageService {
         const assistantMessage: UIMessage = { id: message.id, role: "assistant", parts: [] }
 
         for (const part of parts) {
-          switch(part.type) {
+          switch (part.type) {
             case "reasoning": {
               assistantMessage.parts.push({ type: "reasoning", text: part.text })
               break;
             }
             case "tool": {
-              switch(part.state.status) {
+              switch (part.state.status) {
                 case "error": {
                   assistantMessage.parts.push({
                     type: ("tool-" + part.tool) as `tool-${string}`,
@@ -164,8 +188,8 @@ class MessageService {
                     type: ("tool-" + part.tool) as `tool-${string}`,
                     state: "output-error",
                     toolCallId: part.callId,
-                    input: part.state.input ,
-                    errorText:  "[Tool execution was interrupted]"
+                    input: part.state.input,
+                    errorText: "[Tool execution was interrupted]"
                   })
                 }
               }
@@ -192,7 +216,7 @@ class MessageService {
     })
   }
 
-   async createUserSessionMessage(input: z.infer<typeof PromptInput>) {
+  async createUserSessionMessage(input: z.infer<typeof PromptInput>) {
     const message: Message = {
       id: Identifier.ascending("message"),
       sessionId: input.sessionId,
@@ -217,7 +241,7 @@ class MessageService {
   async createAssistantMessage(input: CreateAssistantMessageInput) {
     const message: Message = {
       id: Identifier.ascending("message"),
-      sessionId:input.sessionId,
+      sessionId: input.sessionId,
       role: 'assistant' as const,
       createdAt: Date.now(),
     }

@@ -1,6 +1,7 @@
-import { useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Loader2, Plus } from "lucide-react"
 import { useSessionStore } from "../store/sessionStore"
+import { DeleteSessionConfirmDialog } from "./DeleteSessionConfirmDialog"
 import { SessionListItem } from "./SessionListItem"
 import { cn } from "@/lib/cn"
 
@@ -11,10 +12,22 @@ export function SessionHistoryPanel() {
     listLoading,
     hydrated,
     lastError,
+    deletingSessionId,
     createNewSession,
     selectSession,
+    deleteSession,
     clearError,
   } = useSessionStore()
+
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null)
+
+  const openDeleteConfirm = useCallback(
+    (id: string) => {
+      const row = sessions.find((s) => s.id === id)
+      setPendingDelete({ id, title: row?.title ?? "" })
+    },
+    [sessions],
+  )
 
   useEffect(() => {
     void useSessionStore.getState().hydrate()
@@ -82,13 +95,29 @@ export function SessionHistoryPanel() {
               id={s.id}
               title={s.title}
               isActive={s.id === currentSessionId}
+              isDeleting={deletingSessionId === s.id}
               onSelect={(id) => {
                 void selectSession(id)
               }}
+              onDelete={openDeleteConfirm}
             />
           ))
         )}
       </nav>
+
+      <DeleteSessionConfirmDialog
+        open={pendingDelete !== null}
+        sessionTitle={pendingDelete?.title ?? ""}
+        isDeleting={pendingDelete != null && deletingSessionId === pendingDelete.id}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return
+          void (async () => {
+            const ok = await deleteSession(pendingDelete.id)
+            if (ok) setPendingDelete(null)
+          })()
+        }}
+      />
     </aside>
   )
 }

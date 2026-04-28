@@ -98,10 +98,13 @@ type SessionState = {
    * 在每次发送开始时清空，发送结束或切会话时清空。
    */
   turnAnchorMessageId: string | null
+  /** 正在执行删除 API 的会话 id，用于禁用对应项的删除按钮 */
+  deletingSessionId: string | null
 
   hydrate: () => Promise<void>
   createNewSession: () => Promise<void>
   selectSession: (sessionId: string) => Promise<void>
+  deleteSession: (sessionId: string) => Promise<boolean>
   loadMessages: (sessionId: string) => Promise<void>
   sendUserText: (text: string) => Promise<void>
   clearError: () => void
@@ -126,12 +129,14 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       lastError: null,
       hydrated: false,
       turnAnchorMessageId: null,
+      deletingSessionId: null,
 
       clearError: () => set({ lastError: null }),
 
       clearStreamAnchor: () => set({ turnAnchorMessageId: null }),
 
       applySsePartUpdated: (part: Part) => {
+        if (!get().sessions.some((s) => s.id === part.sessionId)) return
         set((st) => {
           const mid = part.messageId
           if (mid) {
@@ -151,6 +156,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       },
 
       applySsePartDelta: (p) => {
+        if (!get().sessions.some((s) => s.id === p.sessionId)) return
         set((st) => {
           const mid = p.messageId
           if (mid) {
@@ -241,6 +247,62 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         writeCurrentId(sessionId)
         set({ currentSessionId: sessionId, lastError: null, turnAnchorMessageId: null })
         await get().loadMessages(sessionId)
+      },
+
+      deleteSession: async (sessionId: string) => {
+        if (get().deletingSessionId) return false
+        const st0 = get()
+        if (!st0.sessions.some((s) => s.id === sessionId)) return false
+
+        set({ deletingSessionId: sessionId, lastError: null })
+        try {
+          await sessionApi.deleteSession(sessionId)
+        } catch (e) {
+          set({
+            deletingSessionId: null,
+            lastError: e instanceof Error ? e.message : "删除会话失败",
+          })
+          return false
+        }
+
+        const st = get()
+        const idx = st.sessions.findIndex((s) => s.id === sessionId)
+        const filtered = st.sessions.filter((s) => s.id !== sessionId)
+        const restMessages = { ...st.messagesBySession }
+        delete restMessages[sessionId]
+
+        const wasCurrent = st.currentSessionId === sessionId
+        let nextCurrent = st.currentSessionId
+        let loadTarget: string | null = null
+
+        if (wasCurrent) {
+          if (filtered.length === 0) {
+            nextCurrent = null
+          } else {
+            const nextIdx = idx === -1 ? 0 : Math.min(idx, filtered.length - 1)
+            nextCurrent = filtered[nextIdx]!.id
+          }
+          loadTarget = nextCurrent
+        }
+
+        writeList(filtered)
+        if (nextCurrent) writeCurrentId(nextCurrent)
+        else writeCurrentId(null)
+
+        set({
+          sessions: filtered,
+          messagesBySession: restMessages,
+          currentSessionId: nextCurrent,
+          deletingSessionId: null,
+          turnAnchorMessageId: wasCurrent ? null : st.turnAnchorMessageId,
+          sendLoading: wasCurrent ? false : st.sendLoading,
+          ...(wasCurrent && !nextCurrent ? { messageLoading: false } : {}),
+        })
+
+        if (loadTarget) {
+          await get().loadMessages(loadTarget)
+        }
+        return true
       },
 
       loadMessages: async (sessionId: string) => {

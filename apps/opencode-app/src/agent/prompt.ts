@@ -19,7 +19,7 @@ const LoopInput = z.object({
 export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
   while (true) {
     // 获取会话消息列表
-    const sessionMessages = await messageService.getMessages({ sessionId })
+    const sessionMessages = await messageService.listMessages({ sessionId })
     let lastUserMessage: UserMessage | undefined;
     let lastAssistantMessage: AssistantMessage | undefined;
     let lastFinishedAssistantMessage: AssistantMessage | undefined;
