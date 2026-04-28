@@ -5,7 +5,7 @@ import { Processor, NextAction } from "./processor"
 import { fn } from "../util/fn"
 import { messageService, sessionService } from "../server/session/service"
 import type { AssistantMessage, UserMessage } from "../server/session/model"
-import { ensureProjectWorkspace, getProjectsRoot, resolveAbsoluteProjectDir } from "../server/project/projects-root"
+import { ensureCodeWorkspace, getProjectsRoot, resolveAbsoluteProjectDir } from "../code/workspace-root"
 
 function buildSystemPrompt(projectId: string, absoluteProjectDir: string, projectsRoot: string): string {
   return [
@@ -31,7 +31,7 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
     throw new Error("Session has no projectId; refuse agent tools without a project workspace.")
   }
 
-  await ensureProjectWorkspace(session.projectId)
+  await ensureCodeWorkspace(session.projectId)
   const absoluteProjectDir = resolveAbsoluteProjectDir(session.projectId)
   const projectsRoot = getProjectsRoot()
   const systemPrompt = buildSystemPrompt(session.projectId, absoluteProjectDir, projectsRoot)

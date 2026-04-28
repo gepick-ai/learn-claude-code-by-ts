@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { describeRoute, resolver, validator } from "hono-openapi"
 import z from "zod"
 import { NotFoundError } from "../../storage/error"
+import { codeService } from "../../code/service"
 import { errors } from "../error"
 import { Project } from "./model"
 import { projectService } from "./service"
@@ -93,7 +94,7 @@ projectController
       }
       const rest = pathname.slice(prefix.length).replace(/^\/+/u, "")
       try {
-        const { body, contentType } = await projectService.readWorkspacePreviewFile(projectId, rest)
+        const { body, contentType } = await codeService.readWorkspacePreviewFile(projectId, rest)
         return c.body(new Uint8Array(body), 200, {
           "Content-Type": contentType,
           "Cache-Control": "private, no-store",
@@ -148,7 +149,7 @@ projectController
       const { projectId } = c.req.valid("param")
       const relPath = c.req.valid("query").path
       try {
-        const text = await projectService.readWorkspaceTextFile(projectId, relPath)
+        const text = await codeService.readWorkspaceTextFile(projectId, relPath)
         return c.body(text, 200, {
           "Content-Type": "text/plain; charset=utf-8",
         })

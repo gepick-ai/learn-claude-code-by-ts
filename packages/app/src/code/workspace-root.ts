@@ -58,7 +58,7 @@ export function resolveAbsoluteProjectDir(projectId: string): string {
 }
 
 /** 创建 `{projectsRoot}/{projectId}` 与占位 README（幂等）；不执行 git init。 */
-export async function ensureProjectWorkspace(projectId: string): Promise<{
+export async function ensureCodeWorkspace(projectId: string): Promise<{
   absoluteProjectDir: string
   projectsRoot: string
 }> {

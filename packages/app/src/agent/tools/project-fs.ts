@@ -2,7 +2,7 @@ import path from "node:path"
 import { mkdir } from "node:fs/promises"
 import { fn } from "../tool-fs/schema-fn"
 import { z } from "zod"
-import { resolveInsideProjectRoot } from "./project-path"
+import { resolveInsideProjectRoot } from "../../code/path-guard"
 
 async function ensureParentDir(filePath: string): Promise<void> {
   await mkdir(path.dirname(filePath), { recursive: true })
