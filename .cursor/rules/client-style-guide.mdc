@@ -1,0 +1,37 @@
+---
+alwaysApply: true
+---
+# Style guide（`@gepick/client`）
+
+## 业务实现要求
+
+- **按业务功能块（领域）组织代码，而不是按技术角色横切。** 不在仓库层用 `pages/`、`components/`、`api/`、`store/` 等把**同一功能**拆散；实现某一产品界面或业务能力所需的客户端代码与 UI 交互，应集中在**该功能块目录**下。
+- **示例：`session` 表示「会话界面」整块业务**——左右布局：左侧为会话历史能力，右侧为聊天能力。与该界面相关的路由入口页、子区域 UI、HTTP 封装、本地状态、SSE、仅本块使用的解析/辅助逻辑等，均放在 `session/` 下，并可按子能力继续划分（如 `history/`、`chat/`），使「实现该功能块所依赖的技术与生态」都**聚焦在该目录树内**。
+- **技术与生态的接入方式**：多种功能都会用到同一种技术（如 Zustand、某类 React hooks）时，应在**各自业务块内**分别落地实现，而不是先做顶层 `技术/` 目录再按功能塞文件。  
+  - **推荐**：`feature-one/feature-one-store.ts`、`session/session-store.ts`。  
+  - **避免**：`store/feature-one-store.ts`、`store/session-store.ts` 这类按技术分桶、把多业务混在同一层目录的做法。
+- **`src/util/`（或项目约定的等价目录）**：只放**与具体业务无关**、跨多个功能块复用的薄基建（如 API 基址、`sdk` 客户端工厂、通用 `cn` 等）。**不因「看起来像工具」就把某业务专用逻辑放进 util。**
+- **Barrel 文件**：不仅为 re-export 而增加 `index.ts`；优先从具体模块路径导入，除非团队明确需要统一对外入口。
+
+## 文件命名要求
+
+在 `packages/client` 的 **`src` 目录** 内，**新建或重命名** 的 `*.ts` 与 `*.tsx` 文件，**文件名**一律使用 **kebab-case**（小写词用连字符连接）。
+
+- 正确示例：`session-store.ts`、`api-base.ts`、`session-page.tsx`、`delete-session-confirm-dialog.tsx`、`markdown-message-body.tsx`。
+- 禁止：文件名使用 **PascalCase** 或 **camelCase**（例如 ~~`SessionPage.tsx`~~、~~`apiBase.ts`~~）。
+- 缩写在文件名中一律小写，例如 `sse` → `use-session-sse.ts`、`apply-sse-to-messages.ts`。
+- **仅约束文件名**；**不要求** 修改文件内的类型名、函数名、组件名（仍可导出 `SessionPage` 等 PascalCase 符号）。
+
+### 文件命名例外（无需强行改成多段 kebab 名）
+
+以下属于工具链或常见约定，**可保留** 当前命名：
+
+- `index.ts`：目录 barrel 入口  
+- `main.tsx`：应用入口  
+- `vite-env.d.ts`：Vite 类型增强  
+
+`src` 外的配置文件（如项目根下 `vite.config.ts`）按各工具惯用名即可，本规则**不**强制与 `src` 内模块一致。
+
+## 对 Agent 的约束
+
+在匹配上述 glob 的上下文中**编写、新增、重命名或搬迁** TypeScript/TSX 时：**必须**遵守 **业务实现要求**、**文件命名要求**、**文件命名例外** 各节；新增文件默认落在正确的业务块目录下，避免按「技术大类」新建顶层文件夹拆散功能。

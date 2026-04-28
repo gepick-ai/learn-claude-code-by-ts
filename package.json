@@ -8,6 +8,7 @@
       "packages/app",
       "packages/client",
       "packages/sdk",
+      "packages/ui",
       "tutorial"
     ],
     "catalog": {
@@ -61,7 +62,8 @@
     "dev:server": "bun run packages/app/src/index.ts",
     "build:sdk": "bun run -F '@gepick/sdk' build",
     "dev:client": "bun run -F '@gepick/client' dev",
-    "build:client": "bun run -F '@gepick/client' build"
+    "build:client": "bun run -F '@gepick/client' build",
+    "dev:ui": "bun run -F @gepick/ui dev"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

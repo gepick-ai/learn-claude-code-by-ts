@@ -35,7 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 .apps
 .tasks
-.cursor
 .team
 
 # local SQLite session DB (@gepick/app)

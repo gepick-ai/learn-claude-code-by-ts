@@ -1,0 +1,15 @@
+@layer theme, base, components, utilities;
+
+/* theme layer */
+@import "./colors.css" layer(theme);
+@import "./theme.css" layer(theme);
+
+/* base layer */
+@import "./base.css" layer(base);
+
+/* components layer */
+/* @import "../components/toast.css" layer(components); */
+
+/* utilities layer */
+@import "./utilities.css" layer(utilities);
+@import "./animations.css" layer(utilities);

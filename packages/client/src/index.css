@@ -1,13 +1,1 @@
-@import "tailwindcss";
-
-@layer base {
-  html {
-    @apply h-full;
-  }
-  body {
-    @apply m-0 h-full min-h-0 overflow-hidden bg-slate-100 text-slate-900 antialiased;
-  }
-  #root {
-    @apply flex h-full min-h-0 flex-col;
-  }
-}
+@import "@gepick/ui/styles/tailwind";
