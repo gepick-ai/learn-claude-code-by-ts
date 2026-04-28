@@ -1,13 +1,11 @@
 import { getModel } from "./model"
 import { agentTools } from "./tools"
-import type { ModelMessage } from "ai"
 import z from "zod"
 import { Processor } from "./processor"
 import { fn } from "../util/fn"
-import { messageService, sessionService } from "../server/session/service"
+import { messageService } from "../server/session/service"
 import type { AssistantMessage, UserMessage } from "../server/session/model"
 
-export const MODEL = getModel()
 export const SYSTEM =
   "You are a coding agent. Use the available tools to solve tasks. Act, don't explain."
 export const TOOLS = agentTools
@@ -59,7 +57,7 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
     const nextStatus = await processor.process({
       sessionId,
       messages: messageService.toModelMessages(sessionMessages),
-      model: MODEL,
+      model: getModel(),
       system: SYSTEM,
       tools: TOOLS,
     })

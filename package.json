@@ -7,6 +7,7 @@
     "packages": [
       "apps/opencode-app",
       "apps/opencode-client",
+      "apps/opencode-sdk",
       "packages/learn-claude-code"
     ],
     "catalog": {
@@ -15,11 +16,13 @@
       "@eslint/js": "^10.0.1",
       "@hono/standard-validator": "^0.2.2",
       "@tailwindcss/vite": "^4.2.4",
+      "@tsconfig/node22": "^22.0.5",
       "@types/bun": "latest",
       "@types/node": "^25.6.0",
       "@types/pg": "^8.20.0",
       "@types/react": "^19.2.14",
       "@types/react-dom": "^19.2.3",
+      "@typescript/native-preview": "7.0.0-dev.20260423.1",
       "@vitejs/plugin-react": "^6.0.1",
       "ai": "^5.0.0",
       "clsx": "^2.1.1",
@@ -52,26 +55,13 @@
   },
   "scripts": {
     "test": "bun test",
-    "web": "bun run apps/app/index.ts",
-    "web:ai": "bun run apps/ai-app/index.ts",
-    "web:opencode": "bun run apps/opencode-app/src/index.ts",
     "db:opencode": "bun drizzle-kit --config apps/opencode-app/drizzle.config.ts",
     "db:push": "bun run db:opencode push",
     "db:generate": "bun run db:opencode generate",
-    "dev:opencode-client": "bun run -F @agent-dev/opencode-client dev",
-    "build:opencode-client": "bun run -F @agent-dev/opencode-client build",
-    "s01": "bun run -F @agent-dev/learn-claude-code s01",
-    "s02": "bun run -F @agent-dev/learn-claude-code s02",
-    "s03": "bun run -F @agent-dev/learn-claude-code s03",
-    "s04": "bun run -F @agent-dev/learn-claude-code s04",
-    "s05": "bun run -F @agent-dev/learn-claude-code s05",
-    "s06": "bun run -F @agent-dev/learn-claude-code s06",
-    "s07": "bun run -F @agent-dev/learn-claude-code s07",
-    "s08": "bun run -F @agent-dev/learn-claude-code s08",
-    "s09": "bun run -F @agent-dev/learn-claude-code s09",
-    "s10": "bun run -F @agent-dev/learn-claude-code s10",
-    "s11": "bun run -F @agent-dev/learn-claude-code s11",
-    "s12": "bun run -F @agent-dev/learn-claude-code s12"
+    "dev:server": "bun run apps/opencode-app/src/index.ts",
+    "build:sdk": "bun run -F @agent-dev/opencode-sdk build",
+    "dev:client": "bun run -F @agent-dev/opencode-client dev",
+    "build:client": "bun run -F @agent-dev/opencode-client build"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

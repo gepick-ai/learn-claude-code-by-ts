@@ -5,6 +5,8 @@ import z from "zod"
 import { BadRequestError, NamedError, NotFoundError } from "../util/error"
 import sessionController from "./session/controller"
 import sseController from "./sse/controller"
+import { openAPIRouteHandler } from "hono-openapi"
+import { lazy } from "../util/lazy"
 
 export function createApp() {
   const app = new Hono()
@@ -29,6 +31,16 @@ export function createApp() {
       const message = err instanceof Error && err.stack ? err.stack : String(err)
       return c.json(new NamedError.Unknown({ message }).toObject(), 500)
     })
+    .get("/doc", openAPIRouteHandler(app, {
+      documentation: {
+        info: {
+          title: "opencode",
+          version: "0.0.3",
+          description: "opencode api",
+        },
+        openapi: "3.1.1",
+      },
+    }))
     .route("/session", sessionController)
     .route("/sse", sseController)
 
@@ -36,3 +48,6 @@ export function createApp() {
   app.get("/", async (c) => c.html(await Bun.file(htmlPath).text()))
   return app
 }
+
+
+export const buildApp = lazy(() => createApp())

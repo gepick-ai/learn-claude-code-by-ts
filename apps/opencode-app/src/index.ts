@@ -1,10 +1,11 @@
 import { Database } from "./storage/db"
-import { createApp } from "./server/app"
+import { buildApp } from "./server/app"
 
 Database.Client()
 
+const app = buildApp()
 console.log("🚀 AI SDK server starting on http://localhost:3000")
-const app = createApp()
+
 
 export default {
   port: 3000,
