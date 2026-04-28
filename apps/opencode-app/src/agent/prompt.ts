@@ -67,6 +67,4 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
     if (nextStatus === "stop") break;
     continue
   }
-
-  throw new Error("Impossible")
 })

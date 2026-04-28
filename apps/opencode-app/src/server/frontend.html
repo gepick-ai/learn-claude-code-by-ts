@@ -6,15 +6,23 @@
     <title>AI SDK Agent Web App</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100vh;
+            height: 100dvh;
+            max-height: 100dvh;
+            min-height: 0;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             background: #1a1a2e;
             color: #eee;
         }
         .header {
+            flex-shrink: 0;
             padding: 1rem 2rem;
             background: #16213e;
             border-bottom: 1px solid #0f3460;
@@ -22,18 +30,21 @@
         .header h1 { font-size: 1.25rem; }
         .chat-container {
             flex: 1;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             max-width: 900px;
             width: 100%;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 1rem 1rem 0;
         }
         .messages {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            overflow-x: hidden;
+            padding: 0 0 1rem;
+            -webkit-overflow-scrolling: touch;
         }
         .message {
             margin-bottom: 1rem;
@@ -57,9 +68,20 @@
             color: #a8c;
             max-width: 90%;
         }
+        .message.reasoning {
+            background: #1a2744;
+            margin-right: auto;
+            font-size: 0.9rem;
+            color: #9ab;
+            font-style: italic;
+            max-width: 90%;
+        }
         .input-area {
+            flex-shrink: 0;
             display: flex;
             gap: 0.5rem;
+            padding: 0.75rem 0 1rem;
+            background: #1a1a2e;
         }
         .input-area input {
             flex: 1;
@@ -117,11 +139,50 @@
 
     <script>
         let sessionId = null;
-        let assistantStreamEl = null;
+        /** 当前一次发送中，首条 part 的 messageId 视为用户消息，其余为助理回复 */
+        let turnUserMessageId = null;
+        const partEls = new Map();
+
         const messagesEl = document.getElementById('messages');
         const inputEl = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const sseStatusEl = document.getElementById('sseStatus');
+
+        function formatToolPart(part) {
+            const t = part.tool || '?';
+            const st = part.state && part.state.status;
+            if (st === 'completed' && part.state.output != null) {
+                return `[tool] ${t} → ${String(part.state.output).slice(0, 200)}`;
+            }
+            if (st === 'error' && part.state.error) {
+                return `[tool] ${t} 错误: ${part.state.error}`;
+            }
+            return `[tool] ${t} (${st || '—'})`;
+        }
+
+        function ensurePartElement(part) {
+            let el = partEls.get(part.id);
+            if (el) return el;
+            el = document.createElement('div');
+            if (part.type === 'text') {
+                el.className = 'message assistant';
+            } else if (part.type === 'reasoning') {
+                el.className = 'message reasoning';
+            } else if (part.type === 'tool') {
+                el.className = 'message tool';
+            } else {
+                el.className = 'message assistant';
+            }
+            if (part.type === 'text' || part.type === 'reasoning') {
+                el.textContent = part.text || '';
+            } else if (part.type === 'tool') {
+                el.textContent = formatToolPart(part);
+            }
+            messagesEl.appendChild(el);
+            partEls.set(part.id, el);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            return el;
+        }
 
         const es = new EventSource('/sse/event');
         es.onopen = () => {
@@ -140,24 +201,53 @@
             const t = o.type;
             const p = o.properties || {};
             if (t === 'server.heartbeat' || t === 'server.connected') return;
-            if (p.sessionId != null && sessionId != null && p.sessionId !== sessionId) return;
+            if (sessionId == null) return;
 
-            if (t === 'message.delta' && assistantStreamEl) {
-                assistantStreamEl.textContent += p.text || '';
+            if (t === 'session.part.updated') {
+                const part = p.part;
+                if (!part || part.sessionId !== sessionId) return;
+                const mid = part.messageId;
+                if (mid) {
+                    if (turnUserMessageId == null) {
+                        turnUserMessageId = mid;
+                        return;
+                    }
+                    if (mid === turnUserMessageId) return;
+                }
+                if (part.type === 'text' || part.type === 'reasoning') {
+                    const el = ensurePartElement(part);
+                    el.textContent = part.text || '';
+                } else if (part.type === 'tool') {
+                    const el = ensurePartElement(part);
+                    el.textContent = formatToolPart(part);
+                }
                 messagesEl.scrollTop = messagesEl.scrollHeight;
+                return;
             }
-            if (t === 'tool.call') {
-                const div = document.createElement('div');
-                div.className = 'message tool';
-                div.textContent = `[tool] ${p.name}`;
-                messagesEl.appendChild(div);
+
+            if (t === 'session.part.delta') {
+                if (p.sessionId !== sessionId) return;
+                if (p.field !== 'text') return;
+                const mid = p.messageId;
+                if (mid) {
+                    if (turnUserMessageId == null) {
+                        turnUserMessageId = mid;
+                        return;
+                    }
+                    if (mid === turnUserMessageId) return;
+                }
+                let el = partEls.get(p.partId);
+                if (!el) {
+                    el = document.createElement('div');
+                    el.className = 'message assistant';
+                    el.textContent = p.delta || '';
+                    messagesEl.appendChild(el);
+                    partEls.set(p.partId, el);
+                } else {
+                    el.textContent += p.delta || '';
+                }
                 messagesEl.scrollTop = messagesEl.scrollHeight;
-            }
-            if (t === 'session.error') {
-                const div = document.createElement('div');
-                div.className = 'message assistant';
-                div.textContent = '错误: ' + (p.message || '');
-                messagesEl.appendChild(div);
+                return;
             }
         };
 
@@ -202,11 +292,8 @@
             inputEl.disabled = true;
             sendBtn.disabled = true;
 
-            assistantStreamEl = document.createElement('div');
-            assistantStreamEl.className = 'message assistant';
-            assistantStreamEl.textContent = '';
-            messagesEl.appendChild(assistantStreamEl);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
+            turnUserMessageId = null;
+            partEls.clear();
 
             showLoading();
 
@@ -220,21 +307,15 @@
                 });
                 const data = await res.json();
                 hideLoading();
-                if (data.success) {
-                    // SSE already streamed assistant content.
-                } else {
-                    if (assistantStreamEl) {
-                        assistantStreamEl.textContent = '错误: ' + (data.error || '');
-                    }
+                if (!data.success) {
+                    addMessage('错误: ' + (data.error || ''), 'assistant');
                 }
             } catch (err) {
                 hideLoading();
-                if (assistantStreamEl) {
-                    assistantStreamEl.textContent = '网络错误';
-                }
+                addMessage('网络错误', 'assistant');
             }
 
-            assistantStreamEl = null;
+            partEls.clear();
             inputEl.disabled = false;
             sendBtn.disabled = false;
             inputEl.focus();
