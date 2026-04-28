@@ -57,7 +57,7 @@ export function SessionChatPanel() {
           emptyHint={
             currentSessionId
               ? "此会话还没有消息。在下方输入并发送，开始与助手对话。"
-              : "在左侧选择会话或「新建会话」后，可在此与助手交流。"
+              : "在右侧选择会话或「新建会话」后，可在此与助手交流。"
           }
         />
       </div>

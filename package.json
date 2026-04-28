@@ -57,7 +57,7 @@
   },
   "scripts": {
     "test": "bun test",
-    "db:app": "bun drizzle-kit --config packages/app/drizzle.config.ts",
+    "db:app": "bun --bun drizzle-kit --config packages/app/drizzle.config.ts",
     "db:push": "bun run db:app push",
     "db:generate": "bun run db:app generate",
     "dev:server": "bun run packages/app/src/index.ts",

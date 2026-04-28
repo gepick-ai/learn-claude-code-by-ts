@@ -8,11 +8,19 @@ export const ListProjectsInput = z.object({
   offset: z.number().optional(),
 })
 
+function toProjectDisplayName(projectId: string): string {
+  const [prefixPart, suffixPart = ""] = projectId.split("_")
+  const prefix = (prefixPart ?? "").trim() || "prj"
+  const suffix = suffixPart.trim().slice(0, 6)
+  return `${prefix}_${suffix}`
+}
+
 class ProjectService {
   async createProject() {
+    const id = Identifier.descending("project")
     const project: Project = {
-      id: Identifier.descending("project"),
-      name: "New Project",
+      id,
+      name: toProjectDisplayName(id),
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }

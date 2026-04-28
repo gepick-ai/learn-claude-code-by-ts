@@ -53,7 +53,7 @@ class SessionService {
     const now = Date.now()
     const session: Session = {
       id: Identifier.descending("session"),
-      projectId: projectId,
+      projectId,
       title: formatChinaDateTimeToSeconds(now),
       createdAt: now,
       updatedAt: now,

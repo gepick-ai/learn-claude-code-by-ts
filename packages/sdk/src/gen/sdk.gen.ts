@@ -9,6 +9,8 @@ import {
 } from "./client/index.js";
 import type {
   EventSubscribeResponses,
+  ProjectCreateResponses,
+  ProjectListResponses,
   SessionCreateResponses,
   SessionDeleteErrors,
   SessionDeleteResponses,
@@ -68,6 +70,57 @@ class HeyApiRegistry<T> {
   }
 }
 
+export class Project extends HeyApiClient {
+  /**
+   * List projects
+   *
+   * Get a list of all projects, sorted by most recently updated.
+   */
+  public list<ThrowOnError extends boolean = false>(
+    parameters?: {
+      limit?: number;
+      offset?: number;
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "limit" },
+            { in: "query", key: "offset" },
+          ],
+        },
+      ],
+    );
+    return (options?.client ?? this.client).get<
+      ProjectListResponses,
+      unknown,
+      ThrowOnError
+    >({
+      url: "/project",
+      ...options,
+      ...params,
+    });
+  }
+
+  /**
+   * Create project
+   *
+   * Create a new project
+   */
+  public create<ThrowOnError extends boolean = false>(
+    options?: Options<never, ThrowOnError>,
+  ) {
+    return (options?.client ?? this.client).post<
+      ProjectCreateResponses,
+      unknown,
+      ThrowOnError
+    >({ url: "/project", ...options });
+  }
+}
+
 export class Session extends HeyApiClient {
   /**
    * List sessions
@@ -101,13 +154,29 @@ export class Session extends HeyApiClient {
    * Create a new chat session.
    */
   public create<ThrowOnError extends boolean = false>(
+    parameters?: {
+      projectId?: string;
+    },
     options?: Options<never, ThrowOnError>,
   ) {
+    const params = buildClientParams(
+      [parameters],
+      [{ args: [{ in: "body", key: "projectId" }] }],
+    );
     return (options?.client ?? this.client).post<
       SessionCreateResponses,
       unknown,
       ThrowOnError
-    >({ url: "/session", ...options });
+    >({
+      url: "/session",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    });
   }
 
   /**
@@ -259,6 +328,11 @@ export class OpencodeClient extends HeyApiClient {
   constructor(args?: { client?: Client; key?: string }) {
     super(args);
     OpencodeClient.__registry.set(this, args?.key);
+  }
+
+  private _project?: Project;
+  get project(): Project {
+    return (this._project ??= new Project({ client: this.client }));
   }
 
   private _session?: Session;

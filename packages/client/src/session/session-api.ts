@@ -29,9 +29,17 @@ function data<T>(input: T | { data?: T; error?: unknown }, msg: string): T {
   return input as T
 }
 
-function mapSessionMeta(input: { id: string; title?: string; name?: string; createdAt?: number | string; updatedAt?: number }) {
+function mapSessionMeta(input: {
+  id: string
+  projectId?: string
+  title?: string
+  name?: string
+  createdAt?: number | string
+  updatedAt?: number
+}) {
   return {
     id: input.id,
+    projectId: input.projectId ?? "",
     title: input.title ?? input.name ?? "Untitled",
     createdAt:
       typeof input.createdAt === "number"
@@ -43,8 +51,8 @@ function mapSessionMeta(input: { id: string; title?: string; name?: string; crea
   } satisfies Session
 }
 
-export async function createSession(): Promise<CreateSessionResponse> {
-  const created = data(await sdk.session.create(), "create session failed")
+export async function createSession(projectId: string): Promise<CreateSessionResponse> {
+  const created = data(await sdk.session.create({ projectId }), "create session failed")
   return {
     sessionId: created.sessionId,
     session: mapSessionMeta(created.session),

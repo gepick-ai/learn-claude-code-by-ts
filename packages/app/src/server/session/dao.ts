@@ -44,6 +44,7 @@ class SessionModel {
         for (const row of rows) {
             yield {
                 id: row.id,
+                projectId: row.project_id,
                 title: row.title,
                 createdAt: row.created_at,
                 updatedAt: row.updated_at,

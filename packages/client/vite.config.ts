@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
+        "^/project": gepickProxy,
         "^/session": gepickProxy,
         "^/sse": gepickProxy,
       },

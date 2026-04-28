@@ -8,7 +8,8 @@ export function apiBase(): string {
   if (!import.meta.env.DEV) return ""
   const raw = import.meta.env.VITE_GEPICK_DEV_API_ORIGIN
   if (typeof raw === "string" && raw.trim()) return raw.replace(/\/+$/, "")
-  return ""
+  // 默认直连 app，避免 dev proxy 在长请求/流式场景下偶发 socket hang up。
+  return "http://127.0.0.1:3000"
 }
 
 export function apiUrl(path: string): string {

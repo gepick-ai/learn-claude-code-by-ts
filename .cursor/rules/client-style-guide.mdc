@@ -10,6 +10,7 @@ alwaysApply: true
 - **技术与生态的接入方式**：多种功能都会用到同一种技术（如 Zustand、某类 React hooks）时，应在**各自业务块内**分别落地实现，而不是先做顶层 `技术/` 目录再按功能塞文件。  
   - **推荐**：`feature-one/feature-one-store.ts`、`session/session-store.ts`。  
   - **避免**：`store/feature-one-store.ts`、`store/session-store.ts` 这类按技术分桶、把多业务混在同一层目录的做法。
+- **后端 API 接入要求（`@gepick/sdk`）**：当 `client` 需要使用后端 API 时，优先通过 `@gepick/sdk` 提供的对应方法调用后端能力，不额外手写平行 HTTP 封装；若暂未找到对应 SDK 方法，可先实现 mock api 承接流程，并在该 mock 路径中明确打印 `console.error("当前使用mock api！")` 以便后续替换与排查。
 - **`src/util/`（或项目约定的等价目录）**：只放**与具体业务无关**、跨多个功能块复用的薄基建（如 API 基址、`sdk` 客户端工厂、通用 `cn` 等）。**不因「看起来像工具」就把某业务专用逻辑放进 util。**
 - **Barrel 文件**：不仅为 re-export 而增加 `index.ts`；优先从具体模块路径导入，除非团队明确需要统一对外入口。
 

@@ -64,6 +64,7 @@ export const loop = fn(LoopInput, async ({ sessionId }): Promise<void> => {
 
     if (nextAction === NextAction.STOP) break;
     if (nextAction === NextAction.COMPACT) {
+      console.info("compacting session", { sessionId })
       // TODO: 触发会话压缩
     };
     continue;

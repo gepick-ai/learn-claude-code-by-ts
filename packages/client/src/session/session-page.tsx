@@ -1,12 +1,21 @@
+import { useEffect } from "react"
 import { SessionChatPanel, useSessionSse } from "./chat"
 import { SessionHistoryPanel } from "./history"
+import { ProjectPanel } from "./project"
+import { useSessionStore } from "./session-store"
 import { cn } from "@/util/cn"
 
 /**
- * 会话壳：左 history / 右 chat（见 docs/会话界面/v1.md）。
+ * 会话壳：左 project / 中 chat / 右 history（无 project 时隐藏 history）。
  */
 export function SessionPage() {
   useSessionSse()
+  const hasProjects = useSessionStore((s) => s.projects.length > 0)
+
+  useEffect(() => {
+    void useSessionStore.getState().hydrate()
+  }, [])
+
   return (
     <div
       className={cn(
@@ -15,10 +24,11 @@ export function SessionPage() {
         "selection:bg-indigo-200/80",
       )}
     >
-      <SessionHistoryPanel />
+      <ProjectPanel />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <SessionChatPanel />
       </div>
+      {hasProjects && <SessionHistoryPanel />}
     </div>
   )
 }

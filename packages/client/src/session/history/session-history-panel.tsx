@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { Loader2, Plus } from "lucide-react"
 import { useSessionStore } from "../session-store"
 import { DeleteSessionConfirmDialog } from "./delete-session-confirm-dialog"
@@ -8,6 +8,7 @@ import { cn } from "@/util/cn"
 export function SessionHistoryPanel() {
   const {
     sessions,
+    currentProjectId,
     currentSessionId,
     listLoading,
     hydrated,
@@ -29,25 +30,24 @@ export function SessionHistoryPanel() {
     [sessions],
   )
 
-  useEffect(() => {
-    void useSessionStore.getState().hydrate()
-  }, [])
-
   return (
     <aside
       className={cn(
-        "flex h-full min-h-0 w-[280px] shrink-0 flex-col border-r border-slate-200 bg-white",
+        "flex h-full min-h-0 w-[280px] shrink-0 flex-col border-l border-slate-200 bg-white",
         "shadow-sm shadow-slate-200/50",
       )}
       aria-label="会话历史"
     >
       <div className="shrink-0 border-b border-slate-200 px-3 py-3">
+        <p className="mb-2 truncate font-mono text-[11px] text-slate-500" title={currentProjectId ?? ""}>
+          {currentProjectId ? `Project: ${currentProjectId}` : "请先创建或选择 Project"}
+        </p>
         <button
           type="button"
           onClick={() => {
             void createNewSession()
           }}
-          disabled={listLoading || !hydrated}
+          disabled={listLoading || !hydrated || !currentProjectId}
           className={cn(
             "flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2.5",
             "bg-indigo-600 text-sm font-medium text-white",
@@ -67,7 +67,7 @@ export function SessionHistoryPanel() {
 
       {lastError && (
         <div className="shrink-0 border-b border-amber-200/90 bg-amber-50 px-3 py-2 text-xs text-amber-950">
-          <p className="break-words">{lastError}</p>
+          <p className="wrap-break-word">{lastError}</p>
           <button
             type="button"
             onClick={clearError}

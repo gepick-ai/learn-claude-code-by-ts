@@ -4,8 +4,16 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type Project = {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
 export type Session = {
   id: string;
+  projectId: string;
   title: string;
   createdAt: number;
   updatedAt: number;
@@ -69,13 +77,80 @@ export type UserMessage = {
   role: "user";
 };
 
+export type MessageOutputLengthError = {
+  name: "MessageOutputLengthError";
+  data: {
+    [key: string]: unknown;
+  };
+};
+
+export type MessageAbortedError = {
+  name: "MessageAbortedError";
+  data: {
+    message: string;
+  };
+};
+
+export type ProviderAuthError = {
+  name: "ProviderAuthError";
+  data: {
+    message: string;
+  };
+};
+
+export type StructuredOutputError = {
+  name: "StructuredOutputError";
+  data: {
+    message: string;
+    retries: number;
+  };
+};
+
+export type ContextOverflowError = {
+  name: "ContextOverflowError";
+  data: {
+    message: string;
+    responseBody?: string;
+  };
+};
+
+export type ApiError = {
+  name: "APIError";
+  data: {
+    message: string;
+    statusCode?: number;
+    isRetryable: boolean;
+    responseHeaders?: {
+      [key: string]: string;
+    };
+    responseBody?: string;
+    metadata?: {
+      [key: string]: string;
+    };
+  };
+};
+
+export type UnknownError = {
+  name: "UnknownError";
+  data: {
+    message: string;
+  };
+};
+
 export type AssistantMessage = {
   id: string;
   sessionId: string;
   createdAt: number;
   role: "assistant";
   finish?: string;
-  error?: string;
+  error?:
+    | MessageOutputLengthError
+    | MessageAbortedError
+    | ProviderAuthError
+    | StructuredOutputError
+    | ContextOverflowError
+    | ApiError
+    | UnknownError;
 };
 
 export type Message = UserMessage | AssistantMessage;
@@ -118,6 +193,49 @@ export type SessionMessage = {
   parts: Array<Part>;
 };
 
+export type ProjectListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Maximum number of projects to return
+     */
+    limit?: number;
+    /**
+     * Number of rows to skip (pagination)
+     */
+    offset?: number;
+  };
+  url: "/project";
+};
+
+export type ProjectListResponses = {
+  /**
+   * List of projects
+   */
+  200: Array<Project>;
+};
+
+export type ProjectListResponse =
+  ProjectListResponses[keyof ProjectListResponses];
+
+export type ProjectCreateData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/project";
+};
+
+export type ProjectCreateResponses = {
+  /**
+   * Project created
+   */
+  200: Project;
+};
+
+export type ProjectCreateResponse =
+  ProjectCreateResponses[keyof ProjectCreateResponses];
+
 export type SessionListData = {
   body?: never;
   path?: never;
@@ -141,7 +259,9 @@ export type SessionListResponse =
   SessionListResponses[keyof SessionListResponses];
 
 export type SessionCreateData = {
-  body?: never;
+  body: {
+    projectId: string;
+  };
   path?: never;
   query?: never;
   url: "/session";
