@@ -1,5 +1,6 @@
 export { SessionChatPanel } from "./session-chat-panel"
 export { SessionChatToolbar } from "./session-chat-toolbar"
+export { ChatToolbarCodeSlotProvider, ChatToolbarCodeSlotRegistration } from "./chat-toolbar-code-slot-context"
 export { MessageTranscript } from "./message-transcript"
 export { MessageComposer } from "./message-composer"
 export { useSessionSse } from "./sse/use-session-sse"
