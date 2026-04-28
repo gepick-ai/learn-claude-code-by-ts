@@ -3,6 +3,7 @@ import { cors } from "hono/cors"
 import { HTTPException } from "hono/http-exception"
 import z from "zod"
 import { BadRequestError, NamedError, NotFoundError } from "../util/error"
+import projectController from "./project/controller"
 import sessionController from "./session/controller"
 import sseController from "./sse/controller"
 import { openAPIRouteHandler } from "hono-openapi"
@@ -41,6 +42,7 @@ export function createApp() {
         openapi: "3.1.1",
       },
     }))
+    .route("/project", projectController)
     .route("/session", sessionController)
     .route("/sse", sseController)
     .get("/", (c) => c.json({ service: "opencode-app", documentation: "/doc" }))

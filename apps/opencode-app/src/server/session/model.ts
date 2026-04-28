@@ -3,6 +3,7 @@ import z from "zod"
 // #region Session
 export const Session = z.object({
   id: z.string(),
+  projectId: z.string(),
   title: z.string(),
   createdAt: z.number(),
   updatedAt: z.number(),

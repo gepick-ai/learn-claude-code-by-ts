@@ -1,12 +1,14 @@
 import { sqliteTable, text, index } from "drizzle-orm/sqlite-core"
 import type { Message, Part } from "./model"
 import { Timestamps } from "../../storage/timestamps"
+import { ProjectTable } from "../project/sql"
 
 export type MessageData = Omit<Message, "id" | "sessionId">
 export type PartData = Omit<Part, "id" | "sessionId" | "messageId">
 
 export const SessionTable = sqliteTable("session", {
   id: text().primaryKey(),
+  project_id: text().notNull().references(() => ProjectTable.id, { onDelete: "cascade" }),
   title: text().notNull(),
   ...Timestamps,
 })

@@ -35,8 +35,10 @@ sessionController
         },
       },
     }),
+    validator("param", z.object({ projectId: z.string() })),
     async (c) => {
-      const session = await sessionService.createSession()
+      const projectId = c.req.valid("param").projectId
+      const session = await sessionService.createSession(projectId)
       return c.json({ sessionId: session.id, session })
     },
   )

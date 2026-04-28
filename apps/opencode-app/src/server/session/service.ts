@@ -4,9 +4,6 @@ import { Message, Session, SessionMessage, TextPart, ToolPart } from "./model"
 import { Identifier } from "../../util/id"
 import { messageModel, partModel, sessionModel } from "./dao"
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai"
-import { SessionTable } from "./sql"
-import { Database, eq } from "../../storage/db"
-import { Bus } from "../../util/bus"
 import { formatChinaDateTimeToSeconds } from "../../util/format-china-datetime"
 
 export const PartInput = z.discriminatedUnion("type", [
@@ -52,10 +49,11 @@ export const CreateAssistantMessageInput = z.object({
 export type CreateAssistantMessageInput = z.infer<typeof CreateAssistantMessageInput>
 
 class SessionService {
-  async createSession() {
+  async createSession(projectId: string) {
     const now = Date.now()
     const session: Session = {
       id: Identifier.descending("session"),
+      projectId: projectId,
       title: formatChinaDateTimeToSeconds(now),
       createdAt: now,
       updatedAt: now,
@@ -81,6 +79,7 @@ class SessionService {
 
     return {
       id: row.id,
+      projectId: row.project_id,
       title: row.title,
       createdAt: row.created_at,
       updatedAt: row.updated_at,

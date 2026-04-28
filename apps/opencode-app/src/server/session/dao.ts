@@ -12,6 +12,7 @@ class SessionModel {
                 .insert(SessionTable)
                 .values({
                     id: session.id,
+                    project_id: session.projectId,
                     title: session.title,
                 })
                 .onConflictDoUpdate({
