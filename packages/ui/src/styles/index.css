@@ -9,7 +9,11 @@
 
 /* components layer */
 @import "../components/button/button.css" layer(components);
+@import "../components/checkbox/checkbox.css" layer(components);
 @import "../components/icon/icon.css" layer(components);
+@import "../components/switch/switch.css" layer(components);
+@import "../components/tag/tag.css" layer(components);
+@import "../components/toast/toast.css" layer(components);
 @import "../components/tooltip/tooltip.css" layer(components);
 
 
