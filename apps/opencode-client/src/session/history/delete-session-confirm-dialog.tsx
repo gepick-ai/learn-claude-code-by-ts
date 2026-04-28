@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react"
 import { createPortal } from "react-dom"
 import { AlertTriangle, Loader2 } from "lucide-react"
-import { cn } from "@/lib/cn"
+import { cn } from "@/util/cn"
 
 export type DeleteSessionConfirmDialogProps = {
   open: boolean

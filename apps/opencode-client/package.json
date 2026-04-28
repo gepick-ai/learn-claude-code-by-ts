@@ -12,6 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@agent-dev/opencode-sdk": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "clsx": "catalog:",

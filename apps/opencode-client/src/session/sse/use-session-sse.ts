@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { acquireSessionSse, releaseSessionSse } from "./sessionSseClient"
+import { acquireSessionSse, releaseSessionSse } from "./session-sse-client"
 
 /**
  * 订阅 `GET /sse/event`，把 `session.part.*` 写入与《配套对接》一致的 Zustand。

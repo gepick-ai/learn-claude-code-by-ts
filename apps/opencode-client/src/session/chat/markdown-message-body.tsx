@@ -2,7 +2,7 @@ import type { Components } from "react-markdown"
 import Markdown from "react-markdown"
 import rehypeSanitize from "rehype-sanitize"
 import remarkGfm from "remark-gfm"
-import { cn } from "@/lib/cn"
+import { cn } from "@/util/cn"
 
 const markdownComponents: Components = {
   a: ({ href, children, ...props }) => (

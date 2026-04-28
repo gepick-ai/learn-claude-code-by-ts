@@ -1,7 +1,7 @@
 import { Bot, Loader2, User, Wrench } from "lucide-react"
-import { cn } from "@/lib/cn"
+import { cn } from "@/util/cn"
 import type { Message, Part, SessionMessage } from "../types"
-import { MarkdownMessageBody } from "./MarkdownMessageBody"
+import { MarkdownMessageBody } from "./markdown-message-body"
 
 function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["role"] }) {
   if (part.type === "text" && (part.ignored || part.synthetic)) {

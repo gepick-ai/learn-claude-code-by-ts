@@ -1,2 +1,2 @@
-export { SessionPage } from "./SessionPage"
-export { useSessionStore } from "./store/sessionStore"
+export { SessionPage } from "./session-page"
+export { useSessionStore } from "./store/session-store"

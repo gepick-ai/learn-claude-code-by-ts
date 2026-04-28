@@ -52,6 +52,7 @@
       "name": "@agent-dev/opencode-client",
       "version": "0.0.0",
       "dependencies": {
+        "@agent-dev/opencode-sdk": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "clsx": "catalog:",

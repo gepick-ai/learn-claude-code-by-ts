@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react"
-import { hasVisibleAssistantStreamContent } from "../messages/assistantVisibility"
-import { useSessionStore } from "../store/sessionStore"
+import { hasVisibleAssistantStreamContent } from "../messages/assistant-visibility"
+import { useSessionStore } from "../store/session-store"
 import type { SessionMessage } from "../types"
-import { MessageTranscript } from "./MessageTranscript"
-import { MessageComposer } from "./MessageComposer"
-import { cn } from "@/lib/cn"
+import { MessageTranscript } from "./message-transcript"
+import { MessageComposer } from "./message-composer"
+import { cn } from "@/util/cn"
 
 /** Zustand selector 必须对「无消息」返回**稳定**引用，否则 `[]` 每次新建引用会触发无限重渲染。 */
 const EMPTY_MESSAGES: SessionMessage[] = []

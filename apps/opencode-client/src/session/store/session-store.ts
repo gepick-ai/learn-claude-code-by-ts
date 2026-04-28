@@ -1,8 +1,8 @@
 import { create } from "zustand"
-import { LEGACY_STORAGE_SESSION_LIST, STORAGE_SESSION_ID } from "@/lib/storageKeys"
+import { LEGACY_STORAGE_SESSION_LIST, STORAGE_SESSION_ID } from "@/util/storage-keys"
 import * as sessionApi from "../api"
-import { preferRicherLocalParts } from "../messages/assistantVisibility"
-import { mergePartDelta, mergePartUpdated } from "../sse/applySseToMessages"
+import { preferRicherLocalParts } from "../messages/assistant-visibility"
+import { mergePartDelta, mergePartUpdated } from "../sse/apply-sse-to-messages"
 import type { Part, SessionMessage } from "../types"
 
 const OPTIMISTIC_USER_ID_PREFIX = "client-optimistic-user:"
@@ -34,7 +34,7 @@ type SessionRow = { id: string; title: string }
 /**
  * React 18 开发态 StrictMode 会「挂载 → 卸挂载 → 再挂载」，useEffect 会连跑两次；
  * 若在首个 `await` 之后才把 `hydrated` 置 true，两次都会通过 `if (!hydrated)`，导致
- * `GET /session` 与 `GET .../message` 各发两遍。与 `sessionSseClient` 一样用进行中 Promise 去重。
+ * `GET /session` 与 `GET .../message` 各发两遍。与 `session-sse-client` 一样用进行中 Promise 去重。
  */
 let hydrateInFlight: Promise<void> | null = null
 

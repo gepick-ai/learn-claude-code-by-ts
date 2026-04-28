@@ -1,5 +1,5 @@
 import { Loader2, MessageSquare, Trash2 } from "lucide-react"
-import { cn } from "@/lib/cn"
+import { cn } from "@/util/cn"
 
 type SessionListItemProps = {
   id: string

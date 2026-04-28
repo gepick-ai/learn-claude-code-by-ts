@@ -1,5 +1,5 @@
-import { apiUrl } from "@/lib/apiBase"
-import { useSessionStore } from "../store/sessionStore"
+import { apiUrl } from "@/util/api-base"
+import { useSessionStore } from "../store/session-store"
 import type { Part } from "../types"
 
 type SsePayload = { type: string; properties?: Record<string, unknown> }

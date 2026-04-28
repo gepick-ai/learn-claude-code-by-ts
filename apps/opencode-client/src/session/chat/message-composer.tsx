@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, type KeyboardEvent } from "react"
 import { Loader2, SendHorizontal } from "lucide-react"
-import { cn } from "@/lib/cn"
+import { cn } from "@/util/cn"
 
 type MessageComposerProps = {
   disabled: boolean

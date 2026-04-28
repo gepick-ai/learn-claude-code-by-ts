@@ -1,7 +1,7 @@
 import { SessionChatPanel } from "./chat"
 import { SessionHistoryPanel } from "./history"
-import { useSessionSse } from "./sse/useSessionSse"
-import { cn } from "@/lib/cn"
+import { useSessionSse } from "./sse/use-session-sse"
+import { cn } from "@/util/cn"
 
 /**
  * 会话壳：左 history / 右 chat（见 docs/会话界面/v1.md）。
