@@ -21,12 +21,14 @@ function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["ro
   }
   if (part.type === "tool") {
     return (
-      <div className="rounded-md border border-amber-200/90 bg-amber-50/90 px-3 py-2 text-xs text-amber-950">
-        <p className="mb-1 flex items-center gap-1.5 font-mono text-amber-900">
+      <div className="min-w-0 max-w-full overflow-hidden rounded-md border border-amber-200/90 bg-amber-50/90 px-3 py-2 text-xs text-amber-950">
+        <p className="mb-1 flex min-w-0 flex-wrap items-center gap-1.5 font-mono text-amber-900">
           <Wrench className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} aria-hidden />
-          {part.tool} · {part.state.status}
+          <span className="min-w-0 break-all">
+            {part.tool} · {part.state.status}
+          </span>
         </p>
-        <pre className="max-h-32 overflow-auto font-mono text-[11px] text-slate-600">
+        <pre className="max-h-32 min-w-0 max-w-full overflow-x-auto overflow-y-auto whitespace-pre-wrap break-all wrap-anywhere font-mono text-[11px] text-slate-600">
           {JSON.stringify(part.state, null, 2)}
         </pre>
       </div>
@@ -40,12 +42,12 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
   const isUser = message.role === "user"
   return (
     <li
-      className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}
+      className={cn("flex min-w-0 max-w-full w-full", isUser ? "justify-end" : "justify-start")}
       data-role={message.role}
     >
       <div
         className={cn(
-          "flex max-w-[min(100%,40rem)] gap-2 sm:max-w-2xl",
+          "flex min-w-0 w-full max-w-[min(100%,40rem)] gap-2 sm:max-w-2xl",
           isUser ? "flex-row-reverse" : "flex-row",
         )}
       >
@@ -61,7 +63,7 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
         </div>
         <div
           className={cn(
-            "min-w-0 flex-1 rounded-2xl px-4 py-2.5",
+            "min-w-0 max-w-full flex-1 overflow-hidden rounded-2xl px-4 py-2.5",
             isUser
               ? "rounded-tr-sm border border-indigo-200/90 bg-indigo-50/90 shadow-sm"
               : "rounded-tl-sm border-transparent bg-slate-50/80 shadow-none",
@@ -70,7 +72,7 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
           {message.role === "assistant" && message.error && (
             <p className="mb-1 text-sm text-red-600">{message.error}</p>
           )}
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             {parts.map((p) => (
               <PartBlock key={p.id} part={p} messageRole={message.role} />
             ))}
@@ -91,8 +93,8 @@ type MessageTranscriptProps = {
 
 function AssistantPendingRow() {
   return (
-    <li className="flex w-full justify-start" aria-live="polite" data-role="assistant-pending">
-      <div className="flex max-w-[min(100%,40rem)] gap-2 sm:max-w-2xl">
+    <li className="flex min-w-0 max-w-full w-full justify-start" aria-live="polite" data-role="assistant-pending">
+      <div className="flex min-w-0 w-full max-w-[min(100%,40rem)] gap-2 sm:max-w-2xl">
         <div
           className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-slate-600 ring-1 ring-slate-300/80"
         >
@@ -100,7 +102,7 @@ function AssistantPendingRow() {
         </div>
         <div
           className={cn(
-            "min-w-0 flex-1 rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 shadow-sm",
+            "min-w-0 max-w-full flex-1 overflow-hidden rounded-2xl rounded-tl-sm border border-slate-200 bg-white px-4 py-2.5 shadow-sm",
             "text-sm text-slate-500",
           )}
         >
@@ -131,7 +133,7 @@ export function MessageTranscript({ items, emptyHint, loading, assistantPending 
     )
   }
   return (
-    <ol className="mx-auto flex w-full max-w-3xl flex-col gap-4 list-none" aria-label="消息列表">
+    <ol className="mx-auto flex w-full min-w-0 max-w-3xl flex-col gap-4 list-none" aria-label="消息列表">
       {items.map((sm) => (
         <MessageRow key={sm.message.id} sm={sm} />
       ))}

@@ -26,7 +26,10 @@ const markdownComponents: Components = {
     if (isBlock) {
       return (
         <code
-          className={cn("block whitespace-pre font-mono text-[13px] leading-normal text-slate-800", className)}
+          className={cn(
+            "block min-w-0 max-w-full whitespace-pre-wrap wrap-break-word font-mono text-[13px] leading-normal text-slate-800",
+            className,
+          )}
           {...props}
         >
           {children}
@@ -88,7 +91,7 @@ const markdownComponents: Components = {
   ),
   pre: ({ children, ...props }) => (
     <pre
-      className="my-2 overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[13px] leading-normal"
+      className="my-2 min-w-0 max-w-full overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-[13px] leading-normal"
       {...props}
     >
       {children}
@@ -130,7 +133,7 @@ export function MarkdownMessageBody({ content, variant = "default" }: MarkdownMe
   return (
     <div
       className={cn(
-        "min-w-0 break-words text-sm leading-relaxed",
+        "min-w-0 max-w-full wrap-break-word text-sm leading-relaxed [word-break:break-word]",
         variant === "reasoning" && "border-l-2 border-slate-300 pl-3 italic text-slate-600",
         variant === "default" && "text-slate-800",
       )}
