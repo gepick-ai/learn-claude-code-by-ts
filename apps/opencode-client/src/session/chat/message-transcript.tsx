@@ -2,6 +2,7 @@ import { Bot, Loader2, User, Wrench } from "lucide-react"
 import { cn } from "@/util/cn"
 import type { Message, Part, SessionMessage } from "@agent-dev/opencode-sdk"
 import { MarkdownMessageBody } from "./markdown-message-body"
+import { unwrapToolcallDisplayText } from "./unwrap-toolcall-display-text"
 
 function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["role"] }) {
   if (part.type === "text" && (part.ignored || part.synthetic)) {
@@ -9,7 +10,7 @@ function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["ro
   }
   if (part.type === "text") {
     if (messageRole === "assistant") {
-      return <MarkdownMessageBody content={part.text} variant="default" />
+      return <MarkdownMessageBody content={unwrapToolcallDisplayText(part.text)} variant="default" />
     }
     return (
       <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-800">{part.text}</p>
