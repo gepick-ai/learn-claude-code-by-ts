@@ -38,6 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .cursor
 .team
 
-# local SQLite session DB (opencode-app)
-apps/opencode-app/store/data/
-apps/opencode-app/.data/
+# local SQLite session DB (@gepick/app)
+packages/app/store/data/
+packages/app/.data/

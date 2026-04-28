@@ -1,0 +1,31 @@
+{
+  "name": "@gepick/app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "start": "bun run src/index.ts",
+    "generate": "bun run src/generate.ts",
+    "db:push": "bun drizzle-kit push --config drizzle.config.ts",
+    "db:generate": "bun drizzle-kit generate --config drizzle.config.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "catalog:",
+    "@anthropic-ai/sdk": "catalog:",
+    "@hono/standard-validator": "catalog:",
+    "@types/pg": "catalog:",
+    "ai": "catalog:",
+    "commander": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:",
+    "hono-openapi": "catalog:",
+    "openai": "catalog:",
+    "pg": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "drizzle-kit": "catalog:"
+  }
+}

@@ -1,14 +1,14 @@
 {
-  "name": "agent-dev",
+  "name": "gepick",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "workspaces": {
     "packages": [
-      "apps/opencode-app",
-      "apps/opencode-client",
-      "apps/opencode-sdk",
-      "packages/learn-claude-code"
+      "packages/app",
+      "packages/client",
+      "packages/sdk",
+      "tutorial"
     ],
     "catalog": {
       "@ai-sdk/anthropic": "^2.0.0",
@@ -55,20 +55,19 @@
   },
   "scripts": {
     "test": "bun test",
-    "db:opencode": "bun drizzle-kit --config apps/opencode-app/drizzle.config.ts",
-    "db:push": "bun run db:opencode push",
-    "db:generate": "bun run db:opencode generate",
-    "dev:server": "bun run apps/opencode-app/src/index.ts",
-    "build:sdk": "bun run -F @agent-dev/opencode-sdk build",
-    "dev:client": "bun run -F @agent-dev/opencode-client dev",
-    "build:client": "bun run -F @agent-dev/opencode-client build"
+    "db:app": "bun drizzle-kit --config packages/app/drizzle.config.ts",
+    "db:push": "bun run db:app push",
+    "db:generate": "bun run db:app generate",
+    "dev:server": "bun run packages/app/src/index.ts",
+    "build:sdk": "bun run -F '@gepick/sdk' build",
+    "dev:client": "bun run -F '@gepick/client' dev",
+    "build:client": "bun run -F '@gepick/client' build"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   },
   "dependencies": {
-    "@agent-dev/learn-claude-code": "workspace:*",
     "@ai-sdk/anthropic": "catalog:",
     "@anthropic-ai/sdk": "catalog:",
     "@hono/standard-validator": "catalog:",
