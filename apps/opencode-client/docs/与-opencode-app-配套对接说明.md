@@ -78,7 +78,7 @@
 
 - **多会话侧栏/列表**：依赖后端提供列表/分页类接口。  
 - **路由**：`react-router` 等在需要深链/多页时引入。  
-- **助手 Markdown**：`react-markdown` 与安全策略。  
+- **助手 Markdown**：`react-markdown` + `remark-gfm` + `rehype-sanitize` 与安全策略，见 [会话界面 v2](./会话界面/v2.md) §2～§6。  
 - **测试**：Vitest + Testing Library 在业务稳定后加。  
 - **TanStack Query**：GET 变复杂时评估。
 

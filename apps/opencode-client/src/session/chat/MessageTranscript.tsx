@@ -1,22 +1,22 @@
 import { Bot, Loader2, User, Wrench } from "lucide-react"
 import { cn } from "@/lib/cn"
-import type { Part, SessionMessage } from "../types"
+import type { Message, Part, SessionMessage } from "../types"
+import { MarkdownMessageBody } from "./MarkdownMessageBody"
 
-function PartBlock({ part }: { part: Part }) {
+function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["role"] }) {
   if (part.type === "text" && (part.ignored || part.synthetic)) {
     return null
   }
   if (part.type === "text") {
+    if (messageRole === "assistant") {
+      return <MarkdownMessageBody content={part.text} variant="default" />
+    }
     return (
       <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-800">{part.text}</p>
     )
   }
   if (part.type === "reasoning") {
-    return (
-      <p className="whitespace-pre-wrap break-words border-l-2 border-slate-300 pl-3 text-sm italic text-slate-600">
-        {part.text}
-      </p>
-    )
+    return <MarkdownMessageBody content={part.text} variant="reasoning" />
   }
   if (part.type === "tool") {
     return (
@@ -71,7 +71,7 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
           )}
           <div className="space-y-2">
             {parts.map((p) => (
-              <PartBlock key={p.id} part={p} />
+              <PartBlock key={p.id} part={p} messageRole={message.role} />
             ))}
           </div>
         </div>
