@@ -16,6 +16,9 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Build sdk dist
+        run: bun run -F '@gepick/sdk' build
+
       - name: Build client dist
         run: bun run -F '@gepick/client' build
 
