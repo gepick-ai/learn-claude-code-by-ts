@@ -5,6 +5,17 @@ import { resolveInsideProjectRoot } from "../path-guard"
 import { contentTypeForWorkspaceFile } from "./preview-mime"
 import { parsePathUnderPreview } from "./preview-path"
 
+/** 兼容旧/非规范构建：预览子路径下将 `/assets/*`、`/vite.svg` 改为相对路径，避免命中站点根 404。 */
+function rewriteHtmlForPreviewSubpath(rel: string, html: string): string {
+  const normalized = rel.replace(/\\/g, "/")
+  if (!normalized.endsWith("client/dist/index.html")) {
+    return html
+  }
+  return html
+    .replace(/(["'])\/assets\//g, "$1./assets/")
+    .replace(/(["'])\/vite\.svg(["'])/g, "$1./vite.svg$2")
+}
+
 /**
  * Code v3 预览网关：只读返回工作区内文件（含目录下 `index.html` 默认入口）。
  * `pathAfterPreview` 为挂载在 `/project/:id/preview/` 之后的子路径（可有多个 `/` 段）。
@@ -44,7 +55,11 @@ export async function readWorkspacePreviewFileFromDisk(
     }
   }
 
-  const body = await fs.readFile(absTarget)
+  let body = await fs.readFile(absTarget)
   const contentType = contentTypeForWorkspaceFile(absTarget)
+  if (contentType.startsWith("text/html")) {
+    const rewritten = rewriteHtmlForPreviewSubpath(rel, body.toString("utf8"))
+    body = Buffer.from(rewritten, "utf8")
+  }
   return { body, contentType }
 }
