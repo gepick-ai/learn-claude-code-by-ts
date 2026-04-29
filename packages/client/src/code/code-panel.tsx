@@ -9,6 +9,8 @@ const EMPTY_MESSAGES: ReturnType<typeof useSessionStore.getState>["messagesBySes
 
 export function CodePanel() {
   const currentSessionId = useSessionStore((s) => s.currentSessionId)
+  const sendLoading = useSessionStore((s) => s.sendLoading)
+  const messageLoading = useSessionStore((s) => s.messageLoading)
   const projectId = useSessionStore((s) => {
     if (!s.currentSessionId) return null
     return s.sessions.find((row) => row.id === s.currentSessionId)?.projectId ?? null
@@ -53,6 +55,7 @@ export function CodePanel() {
 
   const emptyHint =
     "发送需求后，助手在 `client/` 中开发；在 `client/` 下执行 `npm run build` 后，产物 `client/dist` 会在这里预览。"
+  const showLoading = status === "loading" || ((sendLoading || messageLoading) && status !== "ready" && status !== "error")
 
   return (
     <aside
@@ -87,9 +90,20 @@ export function CodePanel() {
             title="代码运行区"
           />
         ) : null}
-        {status === "empty" ? (
+        {status === "empty" && !showLoading ? (
           <div className="flex h-full min-h-0 items-center justify-center px-6 text-center text-sm text-slate-500">
             {emptyHint}
+          </div>
+        ) : null}
+        {showLoading ? (
+          <div className="flex h-full min-h-0 items-center justify-center px-6 text-center text-sm text-slate-500">
+            <div className="inline-flex items-center gap-2">
+              <span
+                className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-500"
+                aria-hidden="true"
+              />
+              <span>正在准备预览...</span>
+            </div>
           </div>
         ) : null}
         {status === "error" ? (

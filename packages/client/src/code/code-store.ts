@@ -11,7 +11,7 @@ import {
 const CODE_PREVIEW_CHAT_FALLBACK =
   typeof import.meta !== "undefined" && import.meta.env?.VITE_CODE_PREVIEW_CHAT_FALLBACK === "true"
 
-export type CodePanelStatus = "empty" | "ready" | "error"
+export type CodePanelStatus = "empty" | "loading" | "ready" | "error"
 
 export type PreviewSourceLabel = "workspace" | "chat-fallback" | null
 
@@ -32,6 +32,30 @@ type CodeState = {
 
 /** 同一 session 并发 refresh 时丢弃过期结果 */
 const refreshTokens: Record<string, number> = {}
+
+function shouldShowLoadingForMissing(messages: SessionMessage[]): boolean {
+  if (messages.length === 0) return true
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const msg = messages[i]
+    if (msg?.message.role !== "assistant") continue
+    for (const part of msg.parts) {
+      if (part.type !== "tool") continue
+      const statusRaw = part.state?.status
+      const status = typeof statusRaw === "string" ? statusRaw.toLowerCase() : ""
+      if (status === "pending" || status === "running" || status === "in_progress") {
+        return true
+      }
+    }
+  }
+  let lastUserIdx = -1
+  let lastAssistantIdx = -1
+  for (let i = 0; i < messages.length; i += 1) {
+    const role = messages[i]?.message.role
+    if (role === "user") lastUserIdx = i
+    if (role === "assistant") lastAssistantIdx = i
+  }
+  return lastUserIdx > lastAssistantIdx
+}
 
 export const useCodeStore = create<CodeState>()((set) => ({
   generatedHtmlBySession: {},
@@ -85,6 +109,14 @@ export const useCodeStore = create<CodeState>()((set) => ({
     if (CODE_PREVIEW_CHAT_FALLBACK) {
       const vm = buildFallbackCodeViewModelFromMessages(messages)
       if (vm.status === "pending") {
+        set((st) => ({
+          generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
+          previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
+          codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "loading" },
+          codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
+          previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: "chat-fallback" },
+          workspaceMissingBySession: { ...st.workspaceMissingBySession, [sessionId]: true },
+        }))
         return
       }
       if (vm.status === "ready") {
@@ -112,10 +144,14 @@ export const useCodeStore = create<CodeState>()((set) => ({
     }
 
     if (disk.kind === "missing") {
+      const shouldLoading = shouldShowLoadingForMissing(messages)
       set((st) => ({
         generatedHtmlBySession: { ...st.generatedHtmlBySession, [sessionId]: "" },
         previewEntryUrlBySession: { ...st.previewEntryUrlBySession, [sessionId]: undefined },
-        codePanelStatusBySession: { ...st.codePanelStatusBySession, [sessionId]: "empty" },
+        codePanelStatusBySession: {
+          ...st.codePanelStatusBySession,
+          [sessionId]: shouldLoading ? "loading" : "empty",
+        },
         codePanelErrorBySession: { ...st.codePanelErrorBySession, [sessionId]: undefined },
         previewSourceBySession: { ...st.previewSourceBySession, [sessionId]: null },
         workspaceMissingBySession: { ...st.workspaceMissingBySession, [sessionId]: true },

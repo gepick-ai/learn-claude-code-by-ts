@@ -7,6 +7,15 @@ export type WorkspacePreviewFetchResult =
   | { ok: true; html: string }
   | { ok: false; kind: "missing" | "failed"; message: string }
 
+function isPlaceholderBuildHtml(html: string): boolean {
+  return (
+    /Preview is not built yet/i.test(html) ||
+    /<title>\s*Preview Not Built\s*<\/title>/i.test(html) ||
+    /请在\s*client\/\s*下重新执行/i.test(html) ||
+    /检测到占位预览页/i.test(html)
+  )
+}
+
 function parseErrorLike(input: unknown): { status?: number; message: string } {
   if (input instanceof Error) {
     return { message: input.message || "unknown error" }
@@ -76,6 +85,13 @@ export async function fetchWorkspacePreviewHtml(projectId: string): Promise<Work
     })
     if (typeof html !== "string") {
       return { ok: false, kind: "failed", message: "无效的预览响应" }
+    }
+    if (isPlaceholderBuildHtml(html)) {
+      return {
+        ok: false,
+        kind: "missing",
+        message: "预览构建产物尚未就绪，请稍后重试。",
+      }
     }
     return { ok: true, html }
   } catch (e) {

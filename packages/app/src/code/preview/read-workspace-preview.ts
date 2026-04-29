@@ -22,7 +22,9 @@ function isDistIndexPreviewEntry(rel: string): boolean {
 }
 
 function isInvalidDistIndexHtml(html: string): { invalid: boolean; reason?: string } {
-  if (/Preview is not built yet/i.test(html) || /<title>\s*Preview Not Built\s*<\/title>/i.test(html)) {
+  const hitPreviewBuiltText =
+    /Preview is not built yet/i.test(html) || /<title>\s*Preview Not Built\s*<\/title>/i.test(html)
+  if (hitPreviewBuiltText) {
     return { invalid: true, reason: "检测到占位预览页，尚未生成真实构建产物。" }
   }
   if (
