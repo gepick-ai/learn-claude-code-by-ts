@@ -31,10 +31,13 @@ const appRoot = resolveAppRoot()
 
 function resolveDbDataLocation() {
   const rawPath = process.env.APP_DB_PATH?.trim()
-  const root = findMonorepoRoot()
-  if (!rawPath) return path.join(root, ".data")
-  if (path.isAbsolute(rawPath)) return rawPath
-  return path.resolve(root, rawPath)
+  if (!rawPath) {
+    return path.join(findMonorepoRoot(), ".data")
+  }
+  if (path.isAbsolute(rawPath)) {
+    return rawPath
+  }
+  return path.resolve(findMonorepoRoot(), rawPath)
 }
 
 const dbDataLocation = resolveDbDataLocation()

@@ -9,11 +9,12 @@ export { findMonorepoRoot }
 /** `APP_PROJECT_PATH` 未设置时为 `<monorepo>/.projects`；相对路径相对 monorepo 根解析。 */
 export function getProjectsRoot(): string {
   const env = process.env.APP_PROJECT_PATH?.trim()
-  const root = findMonorepoRoot()
   if (env) {
-    return path.isAbsolute(env) ? path.normalize(env) : path.resolve(root, env)
+    return path.isAbsolute(env)
+      ? path.normalize(env)
+      : path.resolve(findMonorepoRoot(), env)
   }
-  return path.join(root, ".projects")
+  return path.join(findMonorepoRoot(), ".projects")
 }
 
 export function assertSafeProjectId(projectId: string): void {
