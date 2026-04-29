@@ -10,3 +10,5 @@
 - [x] **`@gepick/sdk` 产物校验**：存在 `dist` 且导出文件完整，且不出现 `dist/src`。
 - [x] **`@gepick/client` 产物校验**：生成 Vite `dist`，包含 `index.html` 与静态资源目录。
 - [x] **`@gepick/app` 产物校验**：app 构建成功，且产物路径符合运行约定。
+- [x] **容器构建依赖校验**：运行镜像包含 `nodejs/npm`，项目工作区内 `cd client && npm run build` 可执行。
+- [x] **构建产物防误写校验**：Agent 工具禁止写入 `client/dist/**`，仅允许修改 `client/src/**` 后再构建产物。
