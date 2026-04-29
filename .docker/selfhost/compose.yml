@@ -2,7 +2,7 @@ name: gepick
 
 services:
   gepick:
-    image: ghcr.io/gepick/gepick:latest
+    image: ${APP_IMAGE}
     container_name: gepick_server
     depends_on:
       gepick_migration:
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
 
   gepick_migration:
-    image: ghcr.io/gepick/gepick:latest
+    image: ${APP_IMAGE}
     container_name: gepick_migration
     env_file:
       - .env

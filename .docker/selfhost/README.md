@@ -17,6 +17,7 @@
    - `cp .env.example .env`
 2. 按需修改 `.env`（至少确认以下项）：
    - `PORT`
+   - `APP_IMAGE`（必填，指向你当前仓库发布的镜像）
    - `HOST_DB_PATH`
    - `HOST_PROJECT_PATH`
    - `APP_DB_PATH`
@@ -33,7 +34,7 @@
 
 说明：
 - 使用 `compose.yml`；
-- 默认使用 `ghcr.io/gepick/gepick:latest`。
+- `APP_IMAGE` 必须在 `.env` 中显式配置（例如 `ghcr.io/<your-org>/gepick:latest`）。
 
 ### 2) 本地构建模式（开发调试）
 
