@@ -8,18 +8,18 @@
     "./common/main": "./src/common/main.ts"
   },
   "scripts": {
-    "s01": "bun run src/tools-execution/agent-loop/index.ts",
-    "s02": "bun run src/tools-execution/tools/index.ts",
-    "s03": "bun run src/planning-coordination/todo-write/index.ts",
-    "s04": "bun run src/planning-coordination/subagent/index.ts",
-    "s05": "bun run src/planning-coordination/skills/index.ts",
-    "s06": "bun run src/memory-management/compact/index.ts",
-    "s07": "bun run src/planning-coordination/tasks/index.ts",
-    "s08": "bun run src/concurrency/background-tasks/index.ts",
-    "s09": "bun run src/collaboration/agent-team/index.ts",
-    "s10": "bun run src/collaboration/team-protocols/index.ts",
-    "s11": "bun run src/collaboration/autonomous-agents/index.ts",
-    "s12": "bun run src/collaboration/worktree-isolation/index.ts"
+    "s01": "bun src/tools-execution/agent-loop/index.ts",
+    "s02": "bun src/tools-execution/tools/index.ts",
+    "s03": "bun src/planning-coordination/todo-write/index.ts",
+    "s04": "bun src/planning-coordination/subagent/index.ts",
+    "s05": "bun src/planning-coordination/skills/index.ts",
+    "s06": "bun src/memory-management/compact/index.ts",
+    "s07": "bun src/planning-coordination/tasks/index.ts",
+    "s08": "bun src/concurrency/background-tasks/index.ts",
+    "s09": "bun src/collaboration/agent-team/index.ts",
+    "s10": "bun src/collaboration/team-protocols/index.ts",
+    "s11": "bun src/collaboration/autonomous-agents/index.ts",
+    "s12": "bun src/collaboration/worktree-isolation/index.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "catalog:",

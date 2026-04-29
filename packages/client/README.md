@@ -4,16 +4,17 @@ Vite + React + Tailwind CSS v4 前端包。工程约定见 [docs/项目工程技
 
 ## 开发
 
-在仓库根目录：
+在仓库根目录先完成依赖安装（会触发根目录 `postinstall` → **`bun build:packages`**，含 `@gepick/sdk` 的 `dist`）：
 
 ```bash
-bun run dev:client
+bun install
+bun dev:client
 ```
 
 或：
 
 ```bash
-bun run -F '@gepick/client' dev
+bun -F '@gepick/client' dev
 ```
 
 本包目录下可拷贝 `.env.example` 为 `.env`，设置 **`GEPICK_APP_ORIGIN`** 指向本机 `@gepick/app`（见 Vite 代理配置）。
@@ -21,7 +22,7 @@ bun run -F '@gepick/client' dev
 ## 构建与检查
 
 ```bash
-bun run build:client
-bun run -F '@gepick/client' lint
-bun run -F '@gepick/client' format:check
+turbo run build --filter=@gepick/client
+bun -F '@gepick/client' lint
+bun -F '@gepick/client' format:check
 ```

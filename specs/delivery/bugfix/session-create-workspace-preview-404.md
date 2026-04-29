@@ -51,7 +51,7 @@
 ## 5. 验证（Verification）
 
 1. 构建与启动：
-   - `bun run -F '@gepick/app' build`
+   - `bun -F '@gepick/app' build`
    - `docker compose -f compose.yml -f compose.local.yml up -d --build`
 2. 创建项目后调用：
    - `GET /project/:projectId/workspace/file?path=client%2Fdist%2Findex.html`

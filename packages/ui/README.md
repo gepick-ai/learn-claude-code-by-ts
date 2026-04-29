@@ -7,10 +7,10 @@ gepick 内部 React 组件库；设计见 `docs/design/v1.md`。
 在仓库根目录：
 
 ```bash
-bun run dev:ui
+bun -F @gepick/ui dev
 ```
 
-或在 `packages/ui` 内执行 `bun run storybook`。
+或在 `packages/ui` 内执行 `bun storybook`。
 
 > Storybook 10 需要 **Node.js 20.19+** 或 **22.12+**。若本地 `storybook` 命令报 Node 版本不符，请升级 Node 或使用 `nvm`/`fnm` 切换。
 

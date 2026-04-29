@@ -7,7 +7,7 @@
 在仓库根目录：
 
 ```bash
-bun run -F '@gepick/tutorial' s01
+bun -F '@gepick/tutorial' s01
 ```
 
 ## 导出路径

@@ -8,6 +8,7 @@ import { type SQLiteTransaction } from "drizzle-orm/sqlite-core"
 export * from "drizzle-orm"
 import { Context } from "../util/context"
 import { lazy } from "../util/lazy"
+import { findMonorepoRoot } from "../util/monorepo-root"
 
 /** `packages/app` 根目录 */
 const moduleDir = path.dirname(fileURLToPath(import.meta.url))
@@ -28,9 +29,15 @@ function resolveAppRoot() {
 
 const appRoot = resolveAppRoot()
 
-const dbDataLocation = process.env.APP_DB_PATH?.trim()
-  ? path.resolve(process.env.APP_DB_PATH)
-  : path.join(appRoot, ".data")
+function resolveDbDataLocation() {
+  const rawPath = process.env.APP_DB_PATH?.trim()
+  const root = findMonorepoRoot()
+  if (!rawPath) return path.join(root, ".data")
+  if (path.isAbsolute(rawPath)) return rawPath
+  return path.resolve(root, rawPath)
+}
+
+const dbDataLocation = resolveDbDataLocation()
 
 export const dbPath = path.join(dbDataLocation, "app.db")
 

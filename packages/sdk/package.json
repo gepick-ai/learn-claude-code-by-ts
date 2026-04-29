@@ -3,10 +3,10 @@
   "name": "@gepick/sdk",
   "version": "1.2.24",
   "type": "module",
-  "license": "MIT",
   "scripts": {
-    "typecheck": "tsgo --noEmit",
-    "build": "bun ./scripts/build.ts"
+    "build": "bun clean && bun ./scripts/build.ts",
+    "clean": "rimraf dist",
+    "typecheck": "tsgo --noEmit"
   },
   "types": "./dist/index.d.ts",
   "exports": {
@@ -26,6 +26,7 @@
     "@hey-api/openapi-ts": "0.90.10",
     "@tsconfig/node22": "catalog:",
     "@types/node": "catalog:",
+    "rimraf": "catalog:",
     "typescript": "catalog:",
     "@typescript/native-preview": "catalog:",
     "prettier": "3.6.2"

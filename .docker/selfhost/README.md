@@ -50,7 +50,7 @@
 
 `compose.yml` 中包含两个服务：
 
-- `gepick_migration`：一次性迁移服务，执行 `bun run migrate.js`
+- `gepick_migration`：一次性迁移服务，执行 `bun migrate.js`
 - `gepick`：主服务，依赖 `gepick_migration` 成功后启动
 
 即：先迁移，再启动应用。

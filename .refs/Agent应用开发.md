@@ -547,7 +547,7 @@ GET /api/session/:sessionId
 ### Terminal 版本
 
 ```bash
-bun run s01
+bun s01
 ```
 
 ### Web 版本

@@ -285,7 +285,7 @@ async function runTool(name: string, input: Record<string, unknown>) {
 1. 列出当前目录文件
 2. 创建一个 `hello.txt`
 3. 读取 `package.json`
-4. 执行 `bun run index.ts`
+4. 执行 `bun index.ts`
 5. 根据命令报错再修复一次
 
 ## 下一步该学什么

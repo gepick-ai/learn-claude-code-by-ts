@@ -1,41 +1,19 @@
 import fs from "node:fs"
 import path from "node:path"
 import { mkdir } from "node:fs/promises"
-import { fileURLToPath } from "node:url"
 import { ensureClientProjectTemplate } from "./scaffold-client"
+import { findMonorepoRoot } from "../../util/monorepo-root"
 
-const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url))
+export { findMonorepoRoot }
 
-/** 向上查找包含 `package.json` 且声明 `workspaces` 的目录（monorepo 根）。 */
-export function findMonorepoRoot(): string {
-  let dir = MODULE_DIR
-  while (true) {
-    const pkgPath = path.join(dir, "package.json")
-    if (fs.existsSync(pkgPath)) {
-      try {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8")) as { workspaces?: unknown }
-        if (pkg.workspaces != null) {
-          return dir
-        }
-      } catch {
-        // ignore invalid package.json
-      }
-    }
-    const parent = path.dirname(dir)
-    if (parent === dir) {
-      return process.cwd()
-    }
-    dir = parent
-  }
-}
-
-/** `APP_PROJECT_PATH` 或未设置时 `<monorepo>/.projects`。 */
+/** `APP_PROJECT_PATH` 未设置时为 `<monorepo>/.projects`；相对路径相对 monorepo 根解析。 */
 export function getProjectsRoot(): string {
   const env = process.env.APP_PROJECT_PATH?.trim()
+  const root = findMonorepoRoot()
   if (env) {
-    return path.resolve(env)
+    return path.isAbsolute(env) ? path.normalize(env) : path.resolve(root, env)
   }
-  return path.resolve(findMonorepoRoot(), ".projects")
+  return path.join(root, ".projects")
 }
 
 export function assertSafeProjectId(projectId: string): void {

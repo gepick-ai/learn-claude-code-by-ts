@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "build": "bun clean && tsc --noEmit && vite build",
+    "clean": "rimraf dist",
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -38,6 +39,7 @@
     "eslint-plugin-react-refresh": "catalog:",
     "globals": "catalog:",
     "prettier": "catalog:",
+    "rimraf": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   }

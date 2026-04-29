@@ -16,23 +16,35 @@ bun install
 
 在仓库根目录执行以下步骤：
 
-1) 同步 schema 到本地 SQLite（开发推荐）：
+1) 同步 schema 到本地 SQLite（开发推荐），在仓库根目录：
 
 ```bash
-bun run db:push
+bun -F '@gepick/app' db:push
 ```
 
-2) 需要提交版本化迁移时，生成 migration 文件：
+（若在 `packages/app` 目录内，可直接 `bun db:push`。）
+
+2) 需要提交版本化迁移时，在仓库根目录生成 migration 文件：
 
 ```bash
-bun run db:generate
+bun build:migration
 ```
+
+（等价于在 `packages/app` 内执行 `bun db:generate`。）
 
 3) 验证数据库表是否已创建：
 
 ```bash
-sqlite3 packages/app/.data/app.db ".tables"
+sqlite3 .data/app.db ".tables"
 ```
+
+4) 将 `migration/` 下未应用的迁移执行到本地库（开发常用源码入口，在仓库根）：
+
+```bash
+bun run:migration
+```
+
+（等同 `bun -F '@gepick/app' migrate:apply`；若已 `build` 并要用 `dist/migrate.js`，则 `bun -F '@gepick/app' migrate`。）
 
 ### 3) 设置运行环境变量
 
@@ -50,8 +62,16 @@ export ANTHROPIC_API_KEY=你的key
 
 ### 4) 启动服务
 
+在仓库根目录：
+
 ```bash
-bun run src/index.ts
+bun dev:app
+```
+
+或在 `packages/app` 内：
+
+```bash
+bun src/index.ts
 ```
 
 启动成功后监听：

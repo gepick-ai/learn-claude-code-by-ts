@@ -17,6 +17,7 @@
   },
   "scripts": {
     "dev": "storybook dev -p 6006",
+    "clean": "rimraf dist",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -44,6 +45,7 @@
     "playwright": "^1.55.1",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "rimraf": "catalog:",
     "storybook": "^10.2.15",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",

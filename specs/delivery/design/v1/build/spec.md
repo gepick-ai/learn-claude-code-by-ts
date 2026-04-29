@@ -22,5 +22,5 @@
 ## 构建命令约定
 
 - 各包统一使用 `build` 命令。
-- workspace 根目录可提供聚合命令（例如 `build:core` / `build:sdk` / `build:client` / `build:app`）。
+- workspace 根目录可提供聚合命令（例如 **`bun build:packages`**（`bun turbo run build`）、`bun build:migration` / `bun run:migration` 等，以当前根 `package.json` 为准）；根脚本调用约定 **`bun <脚本名>`**；勿使用裸 **`bun build`**（Bun 自带的 bundle 子命令）。镜像相关脚本仅放在 `@gepick/app` 包内。单包构建可直接使用 `bun turbo run build --filter=@gepick/...`。
 - 构建阶段只产出产物，不执行 migration。

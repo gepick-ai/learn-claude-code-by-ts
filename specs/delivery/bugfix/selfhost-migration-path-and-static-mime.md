@@ -58,7 +58,7 @@
    - `packages/app/src/env.ts` 改为多候选 `.env` 路径探测，避免单一路径假设。
 
 4. **selfhost 运行编排修正**  
-   - `/.docker/selfhost/compose.yml` 保持 `gepick_migration` 在 `gepick` 前执行，命令为 `bun run migrate.js`。  
+   - `/.docker/selfhost/compose.yml` 保持 `gepick_migration` 在 `gepick` 前执行，命令为 `bun migrate.js`。  
    - `gepick` 依赖 `gepick_migration` 成功完成后再启动。
 
 5. **静态资源 MIME 显式设置（第二轮修复）**  
@@ -72,7 +72,7 @@
 
 ## 5. 验证（Verification）
 
-1. 执行 `bun run build`（`packages/app`）确认产物含 `index.js` 与 `migrate.js`。
+1. 执行 `turbo run build --filter=@gepick/app`（或 `bun -F '@gepick/app' build`）确认 `packages/app` 产物含 `index.js` 与 `migrate.js`。
 2. 执行：
    - `docker compose -f compose.yml -f compose.local.yml up -d --build`
 3. 核对容器状态与日志：

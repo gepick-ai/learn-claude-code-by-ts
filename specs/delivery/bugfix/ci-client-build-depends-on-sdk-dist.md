@@ -36,23 +36,23 @@
 
 | 方案 | 说明 |
 |------|------|
-| 方案 A（采用） | 在 `build-client` job 内先执行 `bun run -F '@gepick/sdk' build`，再执行 client build。 |
+| 方案 A（采用） | 在 `build-client` job 内先执行 `bun -F '@gepick/sdk' build`，再执行 client build。 |
 | 方案 B | 改造 `@gepick/sdk` 为源码直连类型解析（不依赖 dist），改动范围较大且会影响发布模型。 |
 
 ## 4. 实施方案（Fix）
 
 1. 修改 `/.github/workflows/build-dist.yml` 的 `build-client` job。
 2. 在 `Install dependencies` 后新增步骤：
-   - `Build sdk dist`：`bun run -F '@gepick/sdk' build`
+   - `Build sdk dist`：`bun -F '@gepick/sdk' build`
 3. 保持后续步骤不变：
-   - `Build client dist`：`bun run -F '@gepick/client' build`
+   - `Build client dist`：`bun -F '@gepick/client' build`
 
 ## 5. 验证（Verification）
 
 1. 本地模拟 CI 顺序：
    - 清理 `packages/sdk/dist`
-   - 执行 `bun run -F '@gepick/sdk' build`
-   - 执行 `bun run -F '@gepick/client' build`
+   - 执行 `bun -F '@gepick/sdk' build`
+   - 执行 `bun -F '@gepick/client' build`
 2. 结果：
    - `@gepick/client` 构建成功，不再出现 `TS2307 @gepick/sdk`。
 3. 预期 CI 结果：
