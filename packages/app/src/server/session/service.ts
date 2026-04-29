@@ -1,6 +1,6 @@
 import { loop } from "../../agent/prompt"
 import z from "zod"
-import { ensureCodeWorkspace } from "../../code/workspace-root"
+import { ensureCodeWorkspace } from "../../code/client-dev/workspace-root"
 import { Message, Session, SessionMessage, TextPart, ToolPart } from "./model"
 import { Identifier } from "../../util/id"
 import { messageModel, partModel, sessionModel } from "./dao"

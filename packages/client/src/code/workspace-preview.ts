@@ -1,7 +1,7 @@
 import { sdk } from "@/util/sdk"
 
-/** 与服务端 Code v2 默认预览入口一致（相对项目根）；v3 预览网关路径下同名。 */
-export const WORKSPACE_PREVIEW_ENTRY = "index.html"
+/** Code v4：相对项目工作区根，仅预览 `client` 构建产物（与 app 设计稿一致）。 */
+export const WORKSPACE_PREVIEW_ENTRY = "client/dist/index.html"
 
 export type WorkspacePreviewFetchResult =
   | { ok: true; html: string }
@@ -38,7 +38,8 @@ function parseErrorLike(input: unknown): { status?: number; message: string } {
  * `cacheKey` 用于 bust 缓存并强制 iframe 重载。
  */
 export function buildWorkspacePreviewEntryUrl(projectId: string, cacheKey?: string | number): string {
-  const base = `/project/${encodeURIComponent(projectId)}/preview/${WORKSPACE_PREVIEW_ENTRY}`
+  const rel = WORKSPACE_PREVIEW_ENTRY.split("/").map(encodeURIComponent).join("/")
+  const base = `/project/${encodeURIComponent(projectId)}/preview/${rel}`
   if (cacheKey === undefined || cacheKey === "") return base
   const sep = base.includes("?") ? "&" : "?"
   return `${base}${sep}v=${encodeURIComponent(String(cacheKey))}`
@@ -84,7 +85,7 @@ export async function fetchWorkspacePreviewHtml(projectId: string): Promise<Work
       return {
         ok: false,
         kind: "missing",
-        message: "工作区暂无 index.html，或文件尚未生成。",
+        message: "尚未生成预览：请在 `client/` 下执行 `npm install` 与 `npm run build`，以产出 `client/dist/index.html`。",
       }
     }
     return { ok: false, kind: "failed", message: msg }

@@ -2,6 +2,7 @@ import fs from "node:fs"
 import path from "node:path"
 import { mkdir } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
+import { ensureClientProjectTemplate } from "./scaffold-client"
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url))
 
@@ -73,5 +74,6 @@ export async function ensureCodeWorkspace(projectId: string): Promise<{
       `# Project workspace\n\nprojectId: \`${projectId}\`\n\nThis directory is the authoritative code workspace for this project (v2, no git in workspace).\n`,
     )
   }
+  await ensureClientProjectTemplate(absoluteProjectDir)
   return { absoluteProjectDir, projectsRoot }
 }

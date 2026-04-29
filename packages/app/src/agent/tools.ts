@@ -29,7 +29,7 @@ export function createAgentTools(ctx: AgentToolContext): Record<string, Tool> {
   return {
     bash: tool({
       description:
-        "Run a shell command. Working directory is fixed to the session project workspace root; git is disabled.",
+        "Run a shell command. cwd is the **project workspace root** (parent of `client/`). Use `cd client && …` for npm/vite in the user app. Git is disabled.",
       inputSchema: z.object({
         command: z.string().describe("The shell command to execute."),
       }),
@@ -49,7 +49,8 @@ export function createAgentTools(ctx: AgentToolContext): Record<string, Tool> {
       execute: lock(async (input) => await readRun(input)),
     }),
     write_file: tool({
-      description: "Write content to a file under the session project workspace root.",
+      description:
+        "Write a file under the workspace root. For **`client/`**, follow the Vite layout: application code under **`client/src/`**, not ad-hoc **`client/*.js`** at the client folder root for main app logic; keep **`client/index.html`** as a thin Vite shell.",
       inputSchema: z.object({
         path: z.string().describe("Path relative to the project workspace root."),
         content: z.string().describe("The full content to write to the file."),

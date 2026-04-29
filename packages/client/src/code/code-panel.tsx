@@ -51,7 +51,8 @@ export function CodePanel() {
     [currentSessionId, html, previewEntryUrl],
   )
 
-  const emptyHint = "发送需求后，助手在工作区生成的页面会在这里运行。"
+  const emptyHint =
+    "发送需求后，助手在 `client/` 中开发；在 `client/` 下执行 `npm run build` 后，产物 `client/dist` 会在这里预览。"
 
   return (
     <aside

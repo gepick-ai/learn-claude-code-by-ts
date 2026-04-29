@@ -1,6 +1,6 @@
 import z from "zod"
 import { Identifier } from "../../util/id"
-import { ensureCodeWorkspace } from "../../code/workspace-root"
+import { ensureCodeWorkspace } from "../../code/client-dev/workspace-root"
 import { projectModel } from "./dao"
 import type { Project } from "./model"
 

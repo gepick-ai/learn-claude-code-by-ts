@@ -5,7 +5,7 @@ import { Processor, NextAction } from "./processor"
 import { fn } from "../util/fn"
 import { messageService, sessionService } from "../server/session/service"
 import type { AssistantMessage, UserMessage } from "../server/session/model"
-import { ensureCodeWorkspace, getProjectsRoot, resolveAbsoluteProjectDir } from "../code/workspace-root"
+import { ensureCodeWorkspace, getProjectsRoot, resolveAbsoluteProjectDir } from "../code/client-dev/workspace-root"
 
 function buildSystemPrompt(projectId: string, absoluteProjectDir: string, projectsRoot: string): string {
   return [
@@ -18,6 +18,21 @@ function buildSystemPrompt(projectId: string, absoluteProjectDir: string, projec
     "All read_file / write_file / edit_file paths are relative to absoluteProjectDir.",
     "bash runs with cwd fixed to absoluteProjectDir; git commands are disabled.",
     "Do not rely on paths suggested in user text as the disk root — only use tools within this workspace.",
+    "",
+    "## User app (Code v4): `client/`",
+    "The Vite+React+TypeScript+Tailwind app lives only under the `client/` directory. The product standard is a **bundled** app, not a hand-edited static site at the client root.",
+    "",
+    "### How to lay out `client/` (mandatory unless the user explicitly demands otherwise)",
+    "- **Source code** belongs in **`client/src/`** (React: `*.tsx`, logic/helpers: `*.ts`). Entry is **`client/src/main.tsx`** → **`client/src/App.tsx`** (or additional components under `client/src/`).",
+    "- **`client/index.html`** is only the **Vite HTML shell**: keep it minimal with **one** module entry, e.g. `<script type=\"module\" src=\"/src/main.tsx\"></script>`. Do **not** pack the whole app inline or drive it from loose scripts at the `client/` root.",
+    "- **Do not** place primary application logic in **`client/*.js`** files next to `package.json` (e.g. avoid `client/game.js` as the main codebase). Implement features as **modules under `client/src/`** and import them from React.",
+    "- Style with **Tailwind via the toolchain** (`tailwindcss`, `@tailwindcss/vite`) and **`client/src/index.css`** (`@import \"tailwindcss\";`). Do **not** rely on **`cdn.tailwindcss.com`** script tags as the default pattern.",
+    "- Shared static files can go under **`client/public/`** when appropriate.",
+    "",
+    "Build/preview:",
+    "`cd client && npm install` and `cd client && npm run build`. The session preview serves **`client/dist/index.html`** after a successful build.",
+    "",
+    "Do not change `client/package.json` dependency version ranges without the user’s clear request; the file is from a product template for version alignment across projects.",
   ].join("\n")
 }
 
