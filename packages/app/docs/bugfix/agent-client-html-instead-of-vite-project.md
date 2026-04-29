@@ -78,6 +78,14 @@
 | `packages/app/src/agent/tools.ts` | `bash` / `write_file` 描述对齐 **`cd client`** 与 **Vite `src/`** 心智。 |
 | `packages/app/docs/design/code/v4.md` | §5 Agent 边界与修订记录同步。 |
 
+### 7.1 后续补充（同 Issue 谱系：预览依赖 `dist`）
+
+| 文件路径 | 说明 |
+|----------|------|
+| `packages/app/src/agent/prompt.ts` | 新增 **Build so preview works (mandatory)**：改完 **`client/`** 后须 **`cd client && npm run build`**（必要时先 install），否则无 **`client/dist`**、会话预览为空。 |
+| `packages/app/src/agent/tools.ts` | `bash` 工具描述再次强调 build 产出 **`dist`**。 |
+| `packages/app/docs/design/code/v4.md` | §5 与修订记录同步「改完须 build」。 |
+
 ---
 
 *文档类型：RCA（Root Cause Analysis）*  

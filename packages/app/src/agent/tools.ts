@@ -29,7 +29,7 @@ export function createAgentTools(ctx: AgentToolContext): Record<string, Tool> {
   return {
     bash: tool({
       description:
-        "Run a shell command. cwd is the **project workspace root** (parent of `client/`). Use `cd client && …` for npm/vite in the user app. Git is disabled.",
+        "Run a shell command. cwd is the **project workspace root** (parent of `client/`). Return value includes **`[exit N]`**: **only N=0 is success**. Non-zero means the command failed (e.g. **`npm run build`** did not produce **`client/dist`** — fix Vite/JS errors from stderr/stdout). After editing **`client/`**, run **`cd client && npm run build`** until **`[exit 0]`**. Git is disabled.",
       inputSchema: z.object({
         command: z.string().describe("The shell command to execute."),
       }),

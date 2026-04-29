@@ -47,7 +47,11 @@ export function createProjectBash(absoluteProjectDir: string) {
           const code = proc.exitCode ?? 0
           const out = `${stdout}${stderr}`.trim()
           const summary = out ? out.slice(0, 50_000) : "(no output)"
-          return `[exit ${code}]\n${summary}`
+          const failBanner =
+            code !== 0
+              ? `COMMAND FAILED — exit code ${code} (not 0). Do not treat this as success; \`client/dist\` was not produced. Fix errors below and run the command again.\n\n`
+              : ""
+          return `${failBanner}[exit ${code}]\n${summary}`
         })(),
         (async () => {
           await Bun.sleep(timeoutMs)
