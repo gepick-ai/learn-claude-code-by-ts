@@ -17,6 +17,22 @@ function isBlockedShellCommand(command: string): boolean {
   return base === "git"
 }
 
+/**
+ * Code v4 禁用 dev server 兜底：预览必须消费 `client/dist` 构建产物。
+ * 若用户明确要求调试 dev server，再由产品策略放开。
+ */
+function isBlockedDevServerCommand(command: string): boolean {
+  const c = command.toLowerCase()
+  return (
+    /\bnpm\s+run\s+dev\b/.test(c) ||
+    /\bnpm\s+dev\b/.test(c) ||
+    /\bpnpm\s+run\s+dev\b/.test(c) ||
+    /\bpnpm\s+dev\b/.test(c) ||
+    /\byarn\s+dev\b/.test(c) ||
+    /\bvite\s+dev\b/.test(c)
+  )
+}
+
 export function createProjectBash(absoluteProjectDir: string) {
   const BashInputSchema = z.object({
     command: z.string(),
@@ -24,6 +40,12 @@ export function createProjectBash(absoluteProjectDir: string) {
   return fn(BashInputSchema, async ({ command }) => {
     if (isBlockedShellCommand(command)) {
       return "Error: git commands are disabled (v2 workspace has no git tooling)"
+    }
+    if (isBlockedDevServerCommand(command)) {
+      return (
+        "Error: dev server commands are disabled in Code v4 workflow. " +
+        "Preview must use built artifacts: run `cd client && npm run build` (or pnpm equivalent) and verify `[exit 0]`."
+      )
     }
 
     if (DANGEROUS_SNIPPETS.some((item) => command.includes(item))) {

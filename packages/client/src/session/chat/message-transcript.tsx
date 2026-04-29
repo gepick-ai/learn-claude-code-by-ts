@@ -4,6 +4,32 @@ import type { Message, Part, SessionMessage } from "@gepick/sdk"
 import { MarkdownMessageBody } from "./markdown-message-body"
 import { unwrapToolcallDisplayText } from "./unwrap-toolcall-display-text"
 
+function formatAssistantError(error: unknown): string {
+  if (!error) return ""
+  if (typeof error === "string") return error
+  if (error instanceof Error) return error.message || String(error)
+  if (typeof error === "object") {
+    const rec = error as Record<string, unknown>
+    const data = rec.data
+    if (data && typeof data === "object") {
+      const d = data as Record<string, unknown>
+      if (typeof d.message === "string" && d.message.trim()) return d.message
+      if (typeof d.responseBody === "string" && d.responseBody.trim()) {
+        try {
+          const parsed = JSON.parse(d.responseBody) as { error?: { message?: string } }
+          const m = parsed?.error?.message
+          if (typeof m === "string" && m.trim()) return m
+        } catch {
+          return d.responseBody
+        }
+      }
+    }
+    if (typeof rec.message === "string" && rec.message.trim()) return rec.message
+    return JSON.stringify(error)
+  }
+  return String(error)
+}
+
 function PartBlock({ part, messageRole }: { part: Part; messageRole: Message["role"] }) {
   if (part.type === "text" && (part.ignored || part.synthetic)) {
     return null
@@ -70,7 +96,7 @@ function MessageRow({ sm }: { sm: SessionMessage }) {
           )}
         >
           {message.role === "assistant" && message.error && (
-            <p className="mb-1 text-sm text-red-600">{message.error}</p>
+            <p className="mb-1 whitespace-pre-wrap text-sm text-red-600">{formatAssistantError(message.error)}</p>
           )}
           <div className="min-w-0 space-y-2">
             {parts.map((p) => (

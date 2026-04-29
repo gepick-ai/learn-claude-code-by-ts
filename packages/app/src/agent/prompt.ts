@@ -35,6 +35,7 @@ function buildSystemPrompt(projectId: string, absoluteProjectDir: string, projec
     "- If **`client/node_modules`** is missing or install is incomplete, run **`cd client && npm install`** (or `pnpm install`) **before** **`npm run build`**.",
     "- If **build fails**, use the bash output to fix **syntax / ESLint-visible / Vite rollup** errors and **run build again** until it succeeds; do not treat the task as done for preview until **`npm run build`** exits **0**.",
     "- **Reading `bash` tool output**: The tool always ends with **`[exit N]`**. **Only `N === 0` counts as success.** If you see **`COMMAND FAILED`** or **`[exit 1]`** (or any non-zero **N**), **`npm run build` did not produce `client/dist`**. Do **not** tell the user the app is built or preview-ready until you see **`[exit 0]`** after **`npm run build`**.",
+    "- **Do not switch to dev server as fallback** (`npm run dev`, `vite dev`, etc.) when build fails. The Code panel preview contract is build artifacts (`client/dist`) only in v4.",
     "",
     "Do not change `client/package.json` dependency version ranges without the user’s clear request; the file is from a product template for version alignment across projects.",
   ].join("\n")
