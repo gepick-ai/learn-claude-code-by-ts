@@ -1,3 +1,4 @@
+import "./env"
 import { Database } from "./storage/db"
 import { buildApp } from "./server/app"
 
