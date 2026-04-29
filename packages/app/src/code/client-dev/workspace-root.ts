@@ -29,9 +29,9 @@ export function findMonorepoRoot(): string {
   }
 }
 
-/** `GEPICK_PROJECTS_ROOT` 或未设置时 `<monorepo>/.projects`。 */
+/** `APP_PROJECT_PATH` 或未设置时 `<monorepo>/.projects`。 */
 export function getProjectsRoot(): string {
-  const env = process.env.GEPICK_PROJECTS_ROOT?.trim()
+  const env = process.env.APP_PROJECT_PATH?.trim()
   if (env) {
     return path.resolve(env)
   }

@@ -1,0 +1,10 @@
+services:
+  gepick:
+    build:
+      context: ../..
+      dockerfile: .docker/deployment/app/Dockerfile
+
+  gepick_migration:
+    build:
+      context: ../..
+      dockerfile: .docker/deployment/app/Dockerfile

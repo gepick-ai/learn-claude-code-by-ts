@@ -52,7 +52,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@gepick/sdk": "workspace:*",
-        "@gepick/ui": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@vitejs/plugin-react": "catalog:",
         "clsx": "catalog:",
@@ -134,15 +133,6 @@
       "peerDependencies": {
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-      },
-    },
-    "tutorial": {
-      "name": "@gepick/tutorial",
-      "version": "0.0.0",
-      "dependencies": {
-        "@anthropic-ai/sdk": "catalog:",
-        "dotenv": "catalog:",
-        "zod": "catalog:",
       },
     },
   },
@@ -354,8 +344,6 @@
     "@gepick/core": ["@gepick/core@workspace:packages/core"],
 
     "@gepick/sdk": ["@gepick/sdk@workspace:packages/sdk"],
-
-    "@gepick/tutorial": ["@gepick/tutorial@workspace:tutorial"],
 
     "@gepick/ui": ["@gepick/ui@workspace:packages/ui"],
 

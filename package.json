@@ -9,8 +9,7 @@
       "packages/client",
       "packages/core",
       "packages/sdk",
-      "packages/ui",
-      "tutorial"
+      "packages/ui"
     ],
     "catalog": {
       "@ai-sdk/anthropic": "^2.0.0",
@@ -61,10 +60,13 @@
     "db:push": "bun run db:app push",
     "db:generate": "bun run db:app generate",
     "dev:server": "bun run packages/app/src/index.ts",
+    "build:app": "bun run -F '@gepick/app' build",
     "build:sdk": "bun run -F '@gepick/sdk' build",
     "dev:client": "bun run -F '@gepick/client' dev",
     "build:client": "bun run -F '@gepick/client' build",
-    "dev:ui": "bun run -F @gepick/ui dev"
+    "dev:ui": "bun run -F @gepick/ui dev",
+    "docker:build": "docker build -f packages/app/Dockerfile -t gepick/app:local .",
+    "docker:push": "docker push gepick/app:local"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

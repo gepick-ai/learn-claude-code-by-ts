@@ -24,6 +24,7 @@ function buildSystemPrompt(projectId: string, absoluteProjectDir: string, projec
     "",
     "### How to lay out `client/` (mandatory unless the user explicitly demands otherwise)",
     "- **Source code** belongs in **`client/src/`** (React: **`*.jsx`**, logic/helpers: **`*.js`**). Entry is **`client/src/main.jsx`** → **`client/src/App.jsx`** (more components under `client/src/` as needed).",
+    "- **Never edit generated artifacts under `client/dist/`**. `client/dist/` must only come from a successful build command.",
     "- **`client/index.html`** is only the **Vite HTML shell**: keep it minimal with **one** module entry, e.g. `<script type=\"module\" src=\"/src/main.jsx\"></script>`. Do **not** pack the whole app inline or drive it from loose scripts at the `client/` root.",
     "- **Do not** place primary application logic in **`client/*.js`** files next to `package.json` (e.g. avoid `client/game.js` as the main codebase). Implement features as **modules under `client/src/`** and import them from React.",
     "- Style with **Tailwind via the toolchain** (`tailwindcss`, `@tailwindcss/vite`) and **`client/src/index.css`** (`@import \"tailwindcss\";`). Do **not** rely on **`cdn.tailwindcss.com`** script tags as the default pattern.",

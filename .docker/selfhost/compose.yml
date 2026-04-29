@@ -1,0 +1,32 @@
+name: gepick
+
+services:
+  gepick:
+    image: ghcr.io/gepick/gepick:latest
+    container_name: gepick_server
+    depends_on:
+      gepick_migration:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # sqlite data on host -> runtime sqlite path in container
+      - ${HOST_DB_PATH}:${APP_DB_PATH}
+      # project workspace data on host -> runtime project store path in container
+      - ${HOST_PROJECT_PATH}:${APP_PROJECT_PATH}
+    restart: unless-stopped
+
+  gepick_migration:
+    image: ghcr.io/gepick/gepick:latest
+    container_name: gepick_migration
+    env_file:
+      - .env
+    command: ["bun", "run", "migrate.js"]
+    volumes:
+      # sqlite data on host -> runtime sqlite path in container
+      - ${HOST_DB_PATH}:${APP_DB_PATH}
+      # project workspace data on host -> runtime project store path in container
+      - ${HOST_PROJECT_PATH}:${APP_PROJECT_PATH}
+    restart: "no"

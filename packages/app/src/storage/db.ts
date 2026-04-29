@@ -10,9 +10,29 @@ import { Context } from "../util/context"
 import { lazy } from "../util/lazy"
 
 /** `packages/app` 根目录 */
-const appRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "../..")
+const moduleDir = path.dirname(fileURLToPath(import.meta.url))
 
-export const dbPath = path.join(appRoot, ".data", "app.db")
+function resolveAppRoot() {
+  const candidates = [
+    moduleDir,
+    path.resolve(moduleDir, ".."),
+    path.resolve(moduleDir, "../.."),
+  ]
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, "migration"))) {
+      return dir
+    }
+  }
+  return path.resolve(moduleDir, "../..")
+}
+
+const appRoot = resolveAppRoot()
+
+const dbDataLocation = process.env.APP_DB_PATH?.trim()
+  ? path.resolve(process.env.APP_DB_PATH)
+  : path.join(appRoot, ".data")
+
+export const dbPath = path.join(dbDataLocation, "app.db")
 
 /** 与 opencode 一致：`migration/<YYYYMMDDHHMMSS>_<slug>/{migration.sql,snapshot.json}` */
 export const migrationDir = path.join(appRoot, "migration")
@@ -40,10 +60,13 @@ export namespace Database {
     sqlite.run("PRAGMA foreign_keys = ON")
     sqlite.run("PRAGMA wal_checkpoint(PASSIVE)")
 
-    const db = drizzle({ client: sqlite })
-    migrate(db, { migrationsFolder: migrationDir })
-    return db
+    return drizzle({ client: sqlite })
   })
+
+  export function runMigrations() {
+    const db = Client()
+    migrate(db, { migrationsFolder: migrationDir })
+  }
 
   export function close() {
     const sqlite = state.sqlite

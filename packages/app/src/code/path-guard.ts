@@ -4,9 +4,14 @@ import path from "node:path"
 export function resolveInsideProjectRoot(absoluteProjectDir: string, rel: string): string {
   const root = path.resolve(absoluteProjectDir)
   const trimmed = rel.trim()
-  // POSIX: path.resolve(root, '/etc/passwd') -> '/etc/passwd'；禁止绝对路径，只用相对路径拼接。
+  // 兼容 agent 传绝对路径：若已在 workspace root 内则放行；否则拒绝。
   if (path.isAbsolute(trimmed)) {
-    throw new Error("Absolute paths are not allowed; use paths relative to the project workspace root.")
+    const abs = path.resolve(trimmed)
+    const sep = path.sep
+    if (abs === root || abs.startsWith(root + sep)) {
+      return abs
+    }
+    throw new Error("Absolute paths are not allowed outside the project workspace root.")
   }
   const normalized =
     path.sep === "\\" ? trimmed.replace(/^[/\\]+/, "") : trimmed.replace(/^\/+/, "")

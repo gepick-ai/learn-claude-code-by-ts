@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { fileURLToPath } from "node:url"
 import path from "node:path"
+import fs from "node:fs/promises"
 import { $ } from "bun"
 import { createClient } from "@hey-api/openapi-ts"
 
@@ -8,7 +9,12 @@ const dir = fileURLToPath(new URL("..", import.meta.url))
 process.chdir(dir)
 
 await $`rm -f openapi.json`
-await $`bun run generate > ${dir}/openapi.json`.cwd(path.resolve(dir, "../app"))
+const generateOutput = await $`bun run generate`.cwd(path.resolve(dir, "../app")).text()
+const openapiStartIndex = generateOutput.search(/\{\s*"openapi"\s*:/)
+if (openapiStartIndex < 0) {
+  throw new Error("Failed to parse OpenAPI JSON from app generate output")
+}
+await fs.writeFile(path.join(dir, "openapi.json"), generateOutput.slice(openapiStartIndex))
 
 await createClient({
   input: "./openapi.json",
@@ -39,4 +45,4 @@ await createClient({
 
 await $`bun prettier --write src/gen`
 await $`rm -rf dist`
-await $`bun tsc`
+await $`bun tsc -p tsconfig.build.json`

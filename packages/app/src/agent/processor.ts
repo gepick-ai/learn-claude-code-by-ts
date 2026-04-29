@@ -136,7 +136,7 @@ export namespace Processor {
                       state: {
                         status: "completed",
                         input: evt.input ?? toolPart.state.input,
-                        output: evt.output.output
+                        output: evt.output
                       }
                     }
                     await partModel.updatePart(toolPart)

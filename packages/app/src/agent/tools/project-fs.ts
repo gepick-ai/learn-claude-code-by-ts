@@ -8,6 +8,11 @@ async function ensureParentDir(filePath: string): Promise<void> {
   await mkdir(path.dirname(filePath), { recursive: true })
 }
 
+function isBlockedGeneratedOutputPath(absoluteProjectDir: string, resolvedPath: string): boolean {
+  const rel = path.relative(absoluteProjectDir, resolvedPath).replace(/\\/g, "/")
+  return rel === "client/dist" || rel.startsWith("client/dist/")
+}
+
 export function createProjectReadFile(absoluteProjectDir: string) {
   const ReadFileInputSchema = z.object({
     path: z.string(),
@@ -40,6 +45,9 @@ export function createProjectWriteFile(absoluteProjectDir: string) {
   return fn(WriteFileInputSchema, async ({ path: filePath, content }) => {
     try {
       const resolved = resolveInsideProjectRoot(absoluteProjectDir, filePath)
+      if (isBlockedGeneratedOutputPath(absoluteProjectDir, resolved)) {
+        return "Error: Writing generated output is blocked. Do not edit `client/dist`; edit `client/src` and run build."
+      }
       await ensureParentDir(resolved)
       await Bun.write(resolved, content)
       return `Wrote ${content.length} bytes to ${filePath}`
@@ -58,6 +66,9 @@ export function createProjectEditFile(absoluteProjectDir: string) {
   return fn(EditFileInputSchema, async ({ path: filePath, old_text, new_text }) => {
     try {
       const resolved = resolveInsideProjectRoot(absoluteProjectDir, filePath)
+      if (isBlockedGeneratedOutputPath(absoluteProjectDir, resolved)) {
+        return "Error: Editing generated output is blocked. Do not edit `client/dist`; edit `client/src` and run build."
+      }
       const content = await Bun.file(resolved).text()
 
       if (!content.includes(old_text)) {
